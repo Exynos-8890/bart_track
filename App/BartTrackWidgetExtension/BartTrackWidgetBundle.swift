@@ -1,4 +1,5 @@
 import BartTrackWidgetKit
+import SwiftUI
 import WidgetKit
 
 @main
