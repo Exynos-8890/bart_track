@@ -15,6 +15,7 @@ private struct BartTrackSettingsView: View {
     private let store: BartTrackSettingsStore
 
     @State private var settings: BartTrackSettings
+    @State private var debugLines: [String] = []
     @State private var statusText = ""
 
     init(store: BartTrackSettingsStore = BartTrackSettingsStore()) {
@@ -75,11 +76,43 @@ private struct BartTrackSettingsView: View {
                     .lineLimit(2)
                     .minimumScaleFactor(0.75)
             }
+
+            VStack(alignment: .leading, spacing: 5) {
+                Text("Debug Log")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                Text(BartTrackDebugLogger().logURL.path(percentEncoded: false))
+                    .font(.caption2.monospaced())
+                    .foregroundStyle(.secondary)
+                    .textSelection(.enabled)
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.75)
+
+                if debugLines.isEmpty {
+                    Text("No debug events yet")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                } else {
+                    ScrollView {
+                        VStack(alignment: .leading, spacing: 3) {
+                            ForEach(debugLines, id: \.self) { line in
+                                Text(line)
+                                    .font(.caption2.monospaced())
+                                    .foregroundStyle(.secondary)
+                                    .textSelection(.enabled)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                            }
+                        }
+                    }
+                    .frame(minHeight: 82, maxHeight: 120)
+                }
+            }
         }
         .padding(28)
-        .frame(width: 460)
+        .frame(width: 540)
         .onAppear {
             persistSettings()
+            refreshDebugLines()
         }
         .onChange(of: settings) { _, _ in
             persistSettings()
@@ -91,9 +124,14 @@ private struct BartTrackSettingsView: View {
             try store.save(settings)
             WidgetCenter.shared.reloadAllTimelines()
             statusText = "Saved \(Self.timeFormatter.string(from: Date()))"
+            refreshDebugLines()
         } catch {
             statusText = "Save failed"
         }
+    }
+
+    private func refreshDebugLines() {
+        debugLines = BartTrackDebugLogger().recentLines(limit: 12)
     }
 
     private static let timeFormatter: DateFormatter = {

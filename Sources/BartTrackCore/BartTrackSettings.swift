@@ -39,7 +39,6 @@ public struct BartTrackSettings: Codable, Equatable, Sendable {
 }
 
 public struct BartTrackSettingsStore: Sendable {
-    public static let appGroupIdentifier = "group.com.local.BartTrack"
     public static let widgetExtensionBundleIdentifier = "com.local.BartTrack.WidgetExtension"
 
     public let configurationURL: URL
@@ -78,10 +77,6 @@ public struct BartTrackSettingsStore: Sendable {
     }
 
     private static func defaultConfigurationURL(fileManager: FileManager, bundleIdentifier: String?) -> URL {
-        if let appGroupURL = fileManager.containerURL(forSecurityApplicationGroupIdentifier: appGroupIdentifier) {
-            return appGroupURL.appendingPathComponent("settings.json")
-        }
-
         let homeURL = fileManager.homeDirectoryForCurrentUser
         if bundleIdentifier == widgetExtensionBundleIdentifier {
             return homeURL
