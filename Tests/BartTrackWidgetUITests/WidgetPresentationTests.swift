@@ -16,10 +16,10 @@ final class WidgetPresentationTests: XCTestCase {
         XCTAssertEqual(presentation.sections.map { $0.rows.map(\.minutes) }, [[4, 11], [7, 19]])
     }
 
-    func testExpandedWidgetKeepsAllVisibleTrainsCappedAtFourPerDirection() {
+    func testExpandedWidgetKeepsNextTwoTrainsPerDirection() {
         let presentation = WidgetBoardPresentation(board: sampleBoard, sizeClass: .expanded)
 
-        XCTAssertEqual(presentation.sections.first?.rows.map(\.minutes), [4, 11, 22, 31])
+        XCTAssertEqual(presentation.sections.first?.rows.map(\.minutes), [4, 11])
         XCTAssertEqual(presentation.sections.last?.rows.map(\.minutes), [7, 19])
         XCTAssertEqual(presentation.catchableSummary, "N 4 / S 1 after 8 min")
     }

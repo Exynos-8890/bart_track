@@ -53,7 +53,7 @@ public struct WidgetBoardPresentation: Equatable, Sendable {
         case .rectangular:
             return board.nextTwo(for: direction)
         case .expanded:
-            return Array(board.departures(for: direction).prefix(4))
+            return board.nextTwo(for: direction)
         }
     }
 }

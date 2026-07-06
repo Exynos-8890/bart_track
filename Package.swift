@@ -9,12 +9,16 @@ let package = Package(
     products: [
         .library(name: "BartTrackCore", targets: ["BartTrackCore"]),
         .library(name: "BartTrackWidgetUI", targets: ["BartTrackWidgetUI"]),
-        .library(name: "BartTrackWidgetKit", targets: ["BartTrackWidgetKit"])
+        .library(name: "BartTrackWidgetKit", targets: ["BartTrackWidgetKit"]),
+        .executable(name: "BartTrackPreviewHost", targets: ["BartTrackPreviewHost"]),
+        .executable(name: "BartTrackSnapshot", targets: ["BartTrackSnapshot"])
     ],
     targets: [
         .target(name: "BartTrackCore"),
         .target(name: "BartTrackWidgetUI", dependencies: ["BartTrackCore"]),
         .target(name: "BartTrackWidgetKit", dependencies: ["BartTrackCore", "BartTrackWidgetUI"]),
+        .executableTarget(name: "BartTrackPreviewHost", dependencies: ["BartTrackCore", "BartTrackWidgetUI"]),
+        .executableTarget(name: "BartTrackSnapshot", dependencies: ["BartTrackCore", "BartTrackWidgetUI"]),
         .testTarget(name: "BartTrackCoreTests", dependencies: ["BartTrackCore"]),
         .testTarget(name: "BartTrackWidgetUITests", dependencies: ["BartTrackCore", "BartTrackWidgetUI"]),
         .testTarget(name: "BartTrackWidgetKitTests", dependencies: ["BartTrackWidgetKit"])

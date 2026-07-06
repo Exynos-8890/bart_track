@@ -32,79 +32,82 @@ public struct BartDepartureWidgetView: View {
     }
 
     private var compactContent: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HeaderView(board: presentation.board, showsSummary: false)
-
-            VStack(spacing: 8) {
-                ForEach(presentation.sections, id: \.direction) { section in
-                    CompactDirectionView(section: section)
-                }
+        VStack(alignment: .leading, spacing: 7) {
+            CompactHeaderView(board: presentation.board)
+            ForEach(presentation.sections, id: \.direction) { section in
+                CompactDirectionView(section: section)
             }
-
-            Spacer(minLength: 0)
         }
-        .padding(14)
+        .padding(10)
     }
 
     private var rectangularContent: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HeaderView(board: presentation.board, showsSummary: true, summary: presentation.catchableSummary)
+        VStack(alignment: .leading, spacing: 9) {
+            HeaderView(board: presentation.board)
 
-            HStack(alignment: .top, spacing: 10) {
+            HStack(alignment: .top, spacing: 8) {
                 ForEach(presentation.sections, id: \.direction) { section in
                     DirectionSectionView(section: section, isExpanded: false)
                 }
             }
         }
-        .padding(16)
+        .padding(12)
     }
 
     private var expandedContent: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HeaderView(board: presentation.board, showsSummary: true, summary: presentation.catchableSummary)
+        VStack(alignment: .leading, spacing: 14) {
+            HeaderView(board: presentation.board)
 
-            VStack(spacing: 10) {
+            VStack(spacing: 12) {
                 ForEach(presentation.sections, id: \.direction) { section in
                     DirectionSectionView(section: section, isExpanded: true)
                 }
             }
         }
-        .padding(18)
+        .padding(14)
+    }
+}
+
+private struct CompactHeaderView: View {
+    let board: DepartureBoard
+
+    var body: some View {
+        HStack(alignment: .center, spacing: 5) {
+            Text("DALY")
+                .font(.system(size: 11, weight: .heavy, design: .rounded))
+                .foregroundStyle(.white.opacity(0.86))
+
+            Spacer(minLength: 4)
+
+            Text("+\(board.walkingMinutes)")
+                .font(.system(size: 10, weight: .heavy, design: .rounded))
+                .monospacedDigit()
+                .foregroundStyle(Color.bartBlue)
+                .padding(.horizontal, 6)
+                .padding(.vertical, 3)
+                .background(.white.opacity(0.94), in: Capsule())
+        }
     }
 }
 
 private struct HeaderView: View {
     let board: DepartureBoard
-    var showsSummary: Bool
-    var summary: String = ""
 
     var body: some View {
-        HStack(alignment: .firstTextBaseline) {
-            VStack(alignment: .leading, spacing: 2) {
-                Text("DALY")
-                    .font(.system(.caption, design: .rounded).weight(.heavy))
-                    .foregroundStyle(.white)
-                Text("Updated now")
-                    .font(.system(.caption2, design: .rounded).weight(.medium))
-                    .foregroundStyle(.white.opacity(0.64))
-            }
+        HStack(alignment: .center, spacing: 6) {
+            Text("DALY")
+                .font(.system(.caption, design: .rounded).weight(.heavy))
+                .foregroundStyle(.white)
 
             Spacer(minLength: 8)
 
-            if showsSummary {
-                Text(summary)
-                    .font(.system(.caption2, design: .rounded).weight(.semibold))
-                    .foregroundStyle(.white.opacity(0.7))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.72)
-            } else {
-                Text("walk \(board.walkingMinutes)")
-                    .font(.system(.caption2, design: .rounded).weight(.bold))
-                    .foregroundStyle(Color.bartBlue)
-                    .padding(.horizontal, 7)
-                    .padding(.vertical, 4)
-                    .background(.white.opacity(0.94), in: Capsule())
-            }
+            Text("+\(board.walkingMinutes)m")
+                .font(.system(.caption2, design: .rounded).weight(.heavy))
+                .monospacedDigit()
+                .foregroundStyle(Color.bartBlue)
+                .padding(.horizontal, 7)
+                .padding(.vertical, 4)
+                .background(.white.opacity(0.94), in: Capsule())
         }
     }
 }
@@ -113,36 +116,19 @@ private struct CompactDirectionView: View {
     let section: WidgetBoardPresentation.Section
 
     var body: some View {
-        HStack(spacing: 8) {
-            DirectionBadge(direction: section.direction)
+        HStack(spacing: 7) {
+            Text(section.direction == .north ? "N" : "S")
+                .font(.system(size: 13, weight: .heavy, design: .rounded))
+                .foregroundStyle(.white.opacity(0.72))
+                .frame(width: 17, alignment: .leading)
 
             if let train = section.rows.first {
-                VStack(alignment: .leading, spacing: 1) {
-                    Text(train.destination)
-                        .font(.system(.caption, design: .rounded).weight(.semibold))
-                        .foregroundStyle(.white)
-                        .lineLimit(1)
-                    Text("next catchable")
-                        .font(.system(.caption2, design: .rounded))
-                        .foregroundStyle(.white.opacity(0.58))
-                }
-
-                Spacer(minLength: 4)
-
-                MinutesView(minutes: train.minutes, color: Color(hex: train.hexColor))
+                MinuteTile(train: train, isLarge: true)
             } else {
-                Text("No catchable train")
-                    .font(.system(.caption, design: .rounded).weight(.semibold))
-                    .foregroundStyle(.white.opacity(0.72))
-                    .lineLimit(1)
+                EmptyRow(isCompact: true)
             }
         }
-        .padding(9)
-        .background(.white.opacity(0.10), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .stroke(.white.opacity(0.12), lineWidth: 1)
-        )
+        .frame(maxHeight: .infinity)
     }
 }
 
@@ -151,73 +137,80 @@ private struct DirectionSectionView: View {
     let isExpanded: Bool
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                DirectionBadge(direction: section.direction)
-                Text("\(section.catchableCount) catchable")
-                    .font(.system(.caption2, design: .rounded).weight(.semibold))
-                    .foregroundStyle(.white.opacity(0.58))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.75)
-            }
+        DirectionPanel(section: section, isExpanded: isExpanded)
+            .frame(maxWidth: .infinity, alignment: .topLeading)
+    }
+}
 
-            VStack(spacing: isExpanded ? 7 : 6) {
-                if section.rows.isEmpty {
-                    EmptyRow()
-                } else {
+private struct DirectionPanel: View {
+    let section: WidgetBoardPresentation.Section
+    let isExpanded: Bool
+
+    private var columns: [GridItem] {
+        [GridItem(.adaptive(minimum: isExpanded ? 96 : 48), spacing: 8)]
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: isExpanded ? 9 : 6) {
+            DirectionBadge(direction: section.direction)
+
+            if section.rows.isEmpty {
+                EmptyRow(isCompact: false)
+            } else if isExpanded {
+                LazyVGrid(columns: columns, alignment: .leading, spacing: 6) {
                     ForEach(section.rows) { train in
-                        TrainRow(train: train, isExpanded: isExpanded)
+                        MinuteTile(train: train, isLarge: true)
+                    }
+                }
+            } else {
+                HStack(spacing: 6) {
+                    ForEach(section.rows) { train in
+                        MinuteTile(train: train, isLarge: section.rows.count == 1)
                     }
                 }
             }
         }
-        .frame(maxWidth: .infinity, alignment: .topLeading)
-        .padding(isExpanded ? 12 : 10)
-        .background(.white.opacity(0.10), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .stroke(.white.opacity(0.12), lineWidth: 1)
-        )
+        .padding(isExpanded ? 12 : 9)
+        .background(.white.opacity(0.07), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
 }
 
-private struct TrainRow: View {
+private struct MinuteTile: View {
     let train: TrainDeparture
-    let isExpanded: Bool
+    let isLarge: Bool
 
     var body: some View {
-        HStack(spacing: 8) {
-            Circle()
-                .fill(Color(hex: train.hexColor))
-                .frame(width: 7, height: 7)
-
-            VStack(alignment: .leading, spacing: 1) {
-                Text(train.destination)
-                    .font(.system(isExpanded ? .caption : .caption2, design: .rounded).weight(.semibold))
-                    .foregroundStyle(.white)
-                    .lineLimit(1)
-                if isExpanded {
-                    Text("Platform \(train.platform)")
-                        .font(.system(.caption2, design: .rounded))
-                        .foregroundStyle(.white.opacity(0.54))
-                        .lineLimit(1)
-                }
-            }
-
-            Spacer(minLength: 6)
-
-            MinutesView(minutes: train.minutes, color: Color(hex: train.hexColor))
+        HStack(alignment: .firstTextBaseline, spacing: 2) {
+            Text("\(train.minutes)")
+                .font(.system(isLarge ? .title2 : .title3, design: .rounded).weight(.heavy))
+                .monospacedDigit()
+            Text("m")
+                .font(.system(.caption2, design: .rounded).weight(.heavy))
         }
+        .foregroundStyle(Color.readableText(onHex: train.hexColor))
+        .lineLimit(1)
+        .minimumScaleFactor(0.7)
+        .frame(maxWidth: .infinity, minHeight: isLarge ? 43 : 36)
+        .padding(.horizontal, isLarge ? 8 : 6)
+        .background(Color(hex: train.hexColor).opacity(0.82), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .stroke(.white.opacity(0.16), lineWidth: 1)
+        )
+        .accessibilityLabel(Text("\(train.direction.title), \(train.minutes) minutes"))
     }
 }
 
 private struct EmptyRow: View {
+    let isCompact: Bool
+
     var body: some View {
-        Text("No trains posted")
-            .font(.system(.caption2, design: .rounded).weight(.medium))
+        Text("--")
+            .font(.system(.title3, design: .rounded).weight(.heavy))
+            .monospacedDigit()
             .foregroundStyle(.white.opacity(0.62))
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.vertical, 6)
+            .frame(maxWidth: .infinity, minHeight: isCompact ? 43 : 36)
+            .background(.white.opacity(0.08), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
     }
 }
 
@@ -225,34 +218,11 @@ private struct DirectionBadge: View {
     let direction: TravelDirection
 
     var body: some View {
-        Text(direction == .north ? "N" : "S")
+        Text(direction == .north ? "NORTH" : "SOUTH")
             .font(.system(.caption2, design: .rounded).weight(.heavy))
-            .foregroundStyle(direction == .north ? Color.bartBlue : Color.bartMint)
-            .frame(width: 24, height: 24)
-            .background(.white.opacity(0.92), in: Circle())
+            .foregroundStyle(.white.opacity(0.72))
+            .lineLimit(1)
             .accessibilityLabel(Text(direction.title))
-    }
-}
-
-private struct MinutesView: View {
-    let minutes: Int
-    let color: Color
-
-    var body: some View {
-        HStack(alignment: .firstTextBaseline, spacing: 2) {
-            Text("\(minutes)")
-                .font(.system(.title3, design: .rounded).weight(.heavy))
-                .monospacedDigit()
-            Text("m")
-                .font(.system(.caption2, design: .rounded).weight(.bold))
-        }
-        .foregroundStyle(.white)
-        .padding(.horizontal, 8)
-        .padding(.vertical, 4)
-        .background(color.opacity(0.72), in: Capsule())
-        .overlay(Capsule().stroke(.white.opacity(0.18), lineWidth: 1))
-        .lineLimit(1)
-        .minimumScaleFactor(0.75)
     }
 }
 
@@ -287,18 +257,39 @@ private extension Color {
     static let bartMint = Color(red: 0.40, green: 0.86, blue: 0.70)
 
     init(hex: String) {
-        let cleaned = hex.trimmingCharacters(in: CharacterSet(charactersIn: "#"))
-        guard cleaned.count == 6,
-              let value = UInt64(cleaned, radix: 16)
-        else {
+        guard let rgb = Self.rgbComponents(from: hex) else {
             self = .bartBlue
             return
         }
 
         self = Color(
-            red: Double((value >> 16) & 0xff) / 255,
-            green: Double((value >> 8) & 0xff) / 255,
-            blue: Double(value & 0xff) / 255
+            red: Double(rgb.red) / 255,
+            green: Double(rgb.green) / 255,
+            blue: Double(rgb.blue) / 255
+        )
+    }
+
+    static func readableText(onHex hex: String) -> Color {
+        guard let rgb = rgbComponents(from: hex) else {
+            return .white
+        }
+
+        let luminance = (0.299 * Double(rgb.red) + 0.587 * Double(rgb.green) + 0.114 * Double(rgb.blue)) / 255
+        return luminance > 0.62 ? Color(red: 0.07, green: 0.08, blue: 0.08) : .white
+    }
+
+    private static func rgbComponents(from hex: String) -> (red: UInt64, green: UInt64, blue: UInt64)? {
+        let cleaned = hex.trimmingCharacters(in: CharacterSet(charactersIn: "#"))
+        guard cleaned.count == 6,
+              let value = UInt64(cleaned, radix: 16)
+        else {
+            return nil
+        }
+
+        return (
+            red: (value >> 16) & 0xff,
+            green: (value >> 8) & 0xff,
+            blue: value & 0xff
         )
     }
 }
