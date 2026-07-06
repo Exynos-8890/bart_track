@@ -16,12 +16,12 @@ final class WidgetPresentationTests: XCTestCase {
         XCTAssertEqual(presentation.sections.map { $0.rows.map(\.minutes) }, [[4, 11, 22, 31], [7, 19]])
     }
 
-    func testRectangularWidgetPrioritizesDistinctLineColorsBeforeDuplicateLines() {
+    func testRectangularWidgetKeepsChronologicalOrderEvenWhenLineColorsRepeat() {
         let presentation = WidgetBoardPresentation(board: colorDiverseBoard, sizeClass: .rectangular)
         let northRows = presentation.sections.first { $0.direction == .north }?.rows
 
-        XCTAssertEqual(northRows?.map(\.minutes), [5, 10, 16, 19])
-        XCTAssertEqual(northRows?.map(\.lineColor), ["YELLOW", "RED", "BLUE", "GREEN"])
+        XCTAssertEqual(northRows?.map(\.minutes), [5, 8, 10, 16])
+        XCTAssertEqual(northRows?.map(\.lineColor), ["YELLOW", "YELLOW", "RED", "BLUE"])
     }
 
     func testExpandedWidgetKeepsFourTrainsPerDirection() {
