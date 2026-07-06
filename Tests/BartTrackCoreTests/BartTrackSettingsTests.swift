@@ -6,6 +6,7 @@ final class BartTrackSettingsTests: XCTestCase {
         XCTAssertEqual(BartTrackSettings.default.station, .dalyCity)
         XCTAssertEqual(BartTrackSettings.default.walkingMinutes, 8)
         XCTAssertTrue(BartTrackSettings.default.showsOnlyCatchableDepartures)
+        XCTAssertFalse(BartTrackSettings.default.showsDockIcon)
     }
 
     func testSettingsClampWalkingMinutesToSupportedRange() {

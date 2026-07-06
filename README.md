@@ -7,6 +7,7 @@ Bart Track 是一个 macOS 桌面小组件，用来查看 BART 车站的实时�
 - 选择任意 BART 出发站，默认 `Daly City`。
 - 设置步行到车站的时间，默认 `8` 分钟，范围 `0...60`。
 - 选择是否只显示可赶上的车，默认开启。
+- 主 App 默认隐藏 Dock 图标；可以在设置里重新打开。
 - 在 small / medium / large / extra large Widget 尺寸下显示不同密度的信息。
 - 显示数据更新时间；如果 WidgetKit 没有及时刷新，会显示 `OLD` / `STALE`。
 - 写入 debug log，方便排查为什么信息变旧。
@@ -20,6 +21,7 @@ Bart Track 是一个 macOS 桌面小组件，用来查看 BART 车站的实时�
 ```json
 {
   "showsOnlyCatchableDepartures": true,
+  "showsDockIcon": false,
   "station": "DALY",
   "walkingMinutes": 8
 }
@@ -30,6 +32,7 @@ Bart Track 是一个 macOS 桌面小组件，用来查看 BART 车站的实时�
 - `station: "DALY"`：从 Daly City 站出发。
 - `walkingMinutes: 8`：你需要 8 分钟走到车站。
 - `showsOnlyCatchableDepartures: true`：只显示到站时间大于 8 分钟的车。
+- `showsDockIcon: false`：主 App 运行时不显示 Dock 图标。
 
 例如某辆车 `7m` 后到站，步行时间是 `8`，它会被隐藏，因为你大概率赶不上。某辆车 `10m` 后到站，它会显示。
 
@@ -58,10 +61,13 @@ App 窗口里可以修改：
 - `Station`：出发站。
 - `Walking time`：从你当前位置走到车站需要几分钟。
 - `Show only later trains`：是否只显示大于步行时间的车。
+- `Show Dock icon`：是否让主 App 出现在 Dock 栏。
 
 修改后 App 会自动保存配置，并调用 `WidgetCenter.shared.reloadAllTimelines()` 请求系统刷新小组件。
 
 注意：macOS WidgetKit 不保证一定按我们的请求立即刷新。它可能根据系统状态延迟刷新，所以偶尔看到 `OLD` 不一定代表 BART API 出错。
+
+你可以 quit 掉 Bart Track 主 App。小组件的自动刷新由 macOS WidgetKit 启动 Widget extension 完成，不依赖主 App 常驻。主 App 只负责设置界面、写配置、手动请求刷新和显示 debug log。
 
 ## 手动修改配置文件
 
@@ -88,6 +94,7 @@ open -e "$HOME/Library/Containers/com.local.BartTrack.WidgetExtension/Data/Libra
 ```json
 {
   "showsOnlyCatchableDepartures": true,
+  "showsDockIcon": false,
   "station": "DALY",
   "walkingMinutes": 8
 }
@@ -100,6 +107,7 @@ open -e "$HOME/Library/Containers/com.local.BartTrack.WidgetExtension/Data/Libra
 | `station` | string | BART 车站缩写，例如 Daly City 是 `DALY`。 |
 | `walkingMinutes` | number | 走到车站需要几分钟；会被限制在 `0...60`。 |
 | `showsOnlyCatchableDepartures` | boolean | `true` 只显示到站时间大于步行时间的车；`false` 显示原始时间顺序里的车。 |
+| `showsDockIcon` | boolean | `false` 隐藏主 App 的 Dock 图标；`true` 显示 Dock 图标。 |
 
 手动改完配置后，建议打开 Bart Track App 点一次 `Reload Widget`，或者重新打开 App：
 
@@ -114,6 +122,7 @@ open ~/Applications/BartTrack.app
 ```json
 {
   "showsOnlyCatchableDepartures": true,
+  "showsDockIcon": false,
   "station": "DALY",
   "walkingMinutes": 8
 }
@@ -124,6 +133,7 @@ open ~/Applications/BartTrack.app
 ```json
 {
   "showsOnlyCatchableDepartures": true,
+  "showsDockIcon": false,
   "station": "24TH",
   "walkingMinutes": 5
 }
@@ -134,6 +144,7 @@ open ~/Applications/BartTrack.app
 ```json
 {
   "showsOnlyCatchableDepartures": false,
+  "showsDockIcon": false,
   "station": "EMBR",
   "walkingMinutes": 0
 }

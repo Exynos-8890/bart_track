@@ -4,21 +4,25 @@ public struct BartTrackSettings: Codable, Equatable, Sendable {
     public static let `default` = BartTrackSettings(
         station: .dalyCity,
         walkingMinutes: 8,
-        showsOnlyCatchableDepartures: true
+        showsOnlyCatchableDepartures: true,
+        showsDockIcon: false
     )
 
     public var station: BartStation
     public var walkingMinutes: Int
     public var showsOnlyCatchableDepartures: Bool
+    public var showsDockIcon: Bool
 
     public init(
         station: BartStation,
         walkingMinutes: Int,
-        showsOnlyCatchableDepartures: Bool
+        showsOnlyCatchableDepartures: Bool,
+        showsDockIcon: Bool = false
     ) {
         self.station = station
         self.walkingMinutes = Self.clampedWalkingMinutes(walkingMinutes)
         self.showsOnlyCatchableDepartures = showsOnlyCatchableDepartures
+        self.showsDockIcon = showsDockIcon
     }
 
     public init(from decoder: Decoder) throws {
@@ -31,6 +35,10 @@ public struct BartTrackSettings: Codable, Equatable, Sendable {
             Bool.self,
             forKey: .showsOnlyCatchableDepartures
         ) ?? Self.default.showsOnlyCatchableDepartures
+        self.showsDockIcon = try container.decodeIfPresent(
+            Bool.self,
+            forKey: .showsDockIcon
+        ) ?? Self.default.showsDockIcon
     }
 
     public static func clampedWalkingMinutes(_ value: Int) -> Int {

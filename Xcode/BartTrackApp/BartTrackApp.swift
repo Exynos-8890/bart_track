@@ -1,3 +1,4 @@
+import AppKit
 import BartTrackCore
 import SwiftUI
 import WidgetKit
@@ -8,6 +9,10 @@ struct BartTrackApp: App {
         WindowGroup {
             BartTrackSettingsView()
         }
+    }
+
+    static func applyDockPolicy(settings: BartTrackSettings) {
+        NSApp.setActivationPolicy(settings.showsDockIcon ? .regular : .accessory)
     }
 }
 
@@ -51,6 +56,8 @@ private struct BartTrackSettingsView: View {
                 }
 
                 Toggle("Show only later trains", isOn: $settings.showsOnlyCatchableDepartures)
+
+                Toggle("Show Dock icon", isOn: $settings.showsDockIcon)
             }
             .formStyle(.grouped)
 
@@ -111,6 +118,8 @@ private struct BartTrackSettingsView: View {
         .padding(28)
         .frame(width: 540)
         .onAppear {
+            NSApp.activate(ignoringOtherApps: true)
+            BartTrackApp.applyDockPolicy(settings: settings)
             persistSettings()
             refreshDebugLines()
         }
@@ -122,6 +131,7 @@ private struct BartTrackSettingsView: View {
     private func persistSettings() {
         do {
             try store.save(settings)
+            BartTrackApp.applyDockPolicy(settings: settings)
             WidgetCenter.shared.reloadAllTimelines()
             statusText = "Saved \(Self.timeFormatter.string(from: Date()))"
             refreshDebugLines()

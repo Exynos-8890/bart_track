@@ -12,6 +12,7 @@
 		100000000000000000000103 /* BartTrackWidgetKit in Frameworks */ = {isa = PBXBuildFile; productRef = 100000000000000000000701 /* BartTrackWidgetKit */; };
 		100000000000000000000104 /* BartTrackWidgetExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 100000000000000000000302 /* BartTrackWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		100000000000000000000105 /* BartTrackCore in Frameworks */ = {isa = PBXBuildFile; productRef = 100000000000000000000702 /* BartTrackCore */; };
+		100000000000000000000106 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 100000000000000000000206 /* Assets.xcassets */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -44,6 +45,7 @@
 		100000000000000000000203 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		100000000000000000000204 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		100000000000000000000205 /* BartTrackWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BartTrackWidgetExtension.entitlements; sourceTree = "<group>"; };
+		100000000000000000000206 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		100000000000000000000301 /* BartTrack.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BartTrack.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		100000000000000000000302 /* BartTrackWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = BartTrackWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -82,6 +84,7 @@
 			children = (
 				100000000000000000000201 /* BartTrackApp.swift */,
 				100000000000000000000203 /* Info.plist */,
+				100000000000000000000206 /* Assets.xcassets */,
 			);
 			path = Xcode/BartTrackApp;
 			sourceTree = SOURCE_ROOT;
@@ -114,6 +117,7 @@
 			buildPhases = (
 				100000000000000000000501 /* Sources */,
 				100000000000000000000502 /* Frameworks */,
+				100000000000000000000506 /* Resources */,
 				100000000000000000000504 /* Embed App Extensions */,
 			);
 			buildRules = (
@@ -187,6 +191,17 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		100000000000000000000506 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				100000000000000000000106 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		100000000000000000000501 /* Sources */ = {
@@ -334,6 +349,7 @@
 		100000000000000000001003 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
@@ -353,6 +369,7 @@
 		100000000000000000001004 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
