@@ -62,13 +62,16 @@ git revert <commit-sha>
 
 ## Xcode Integration
 
-For the minimal installable macOS widget:
+Open the included project:
 
-1. Create a macOS App project in Xcode.
-2. Add a Widget Extension target.
-3. Add this repository as a local Swift package dependency.
-4. Link `BartTrackWidgetKit` to the Widget Extension target.
-5. Replace the generated widget bundle file with `App/BartTrackWidgetExtension/BartTrackWidgetBundle.swift`.
-6. Ensure the Widget Extension has outbound network access enabled by the host app's sandbox settings if sandboxing is turned on.
+```bash
+open BartTrack.xcodeproj
+```
+
+The Xcode project contains:
+
+- `BartTrack`: a minimal macOS host app.
+- `BartTrackWidgetExtension`: a WidgetKit extension linked to the local `BartTrackWidgetKit` package product.
+- Widget extension entitlements with outbound network access enabled.
 
 WidgetKit controls the exact refresh schedule. This project requests a refresh every 60 seconds through the timeline policy, but macOS may defer updates based on system policy.
