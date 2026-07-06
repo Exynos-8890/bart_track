@@ -1,5 +1,6 @@
 import BartTrackCore
 import SwiftUI
+import WidgetKit
 
 public struct BartDepartureWidgetView: View {
     private let presentation: WidgetBoardPresentation
@@ -10,8 +11,10 @@ public struct BartDepartureWidgetView: View {
 
     public var body: some View {
         ZStack {
-            WidgetBackground()
             content
+        }
+        .containerBackground(for: .widget) {
+            WidgetBackground()
         }
         .containerShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
     }
