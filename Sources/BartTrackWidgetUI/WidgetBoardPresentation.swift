@@ -22,16 +22,27 @@ public struct WidgetBoardPresentation: Equatable, Sendable {
 
     public let board: DepartureBoard
     public let sizeClass: WidgetSizeClass
+    public let showsOnlyCatchableDepartures: Bool
     public let sections: [Section]
 
-    public init(board: DepartureBoard, sizeClass: WidgetSizeClass) {
+    public init(
+        board: DepartureBoard,
+        sizeClass: WidgetSizeClass,
+        showsOnlyCatchableDepartures: Bool = BartTrackSettings.default.showsOnlyCatchableDepartures
+    ) {
         self.board = board
         self.sizeClass = sizeClass
+        self.showsOnlyCatchableDepartures = showsOnlyCatchableDepartures
         self.sections = [.north, .south].map { direction in
             Section(
                 direction: direction,
-                rows: Self.visibleRows(board: board, direction: direction, sizeClass: sizeClass),
-                catchableCount: board.departures(for: direction).filter { $0.minutes >= board.walkingMinutes }.count
+                rows: Self.visibleRows(
+                    board: board,
+                    direction: direction,
+                    sizeClass: sizeClass,
+                    showsOnlyCatchableDepartures: showsOnlyCatchableDepartures
+                ),
+                catchableCount: board.departures(for: direction).filter(board.isCatchable).count
             )
         }
     }
@@ -45,15 +56,19 @@ public struct WidgetBoardPresentation: Equatable, Sendable {
     private static func visibleRows(
         board: DepartureBoard,
         direction: TravelDirection,
-        sizeClass: WidgetSizeClass
+        sizeClass: WidgetSizeClass,
+        showsOnlyCatchableDepartures: Bool
     ) -> [TrainDeparture] {
+        let departures = board.departures(for: direction)
+        let visibleDepartures = showsOnlyCatchableDepartures ? departures.filter(board.isCatchable) : departures
+
         switch sizeClass {
         case .compact:
-            return board.nextTwo(for: direction)
+            return Array(visibleDepartures.prefix(2))
         case .rectangular:
-            return Array(board.departures(for: direction).prefix(4))
+            return Array(visibleDepartures.prefix(4))
         case .expanded:
-            return Array(board.departures(for: direction).prefix(4))
+            return Array(visibleDepartures.prefix(4))
         }
     }
 }

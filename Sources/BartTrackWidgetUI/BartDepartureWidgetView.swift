@@ -9,9 +9,14 @@ public struct BartDepartureWidgetView: View {
     public init(
         board: DepartureBoard,
         sizeClass: WidgetSizeClass,
-        freshness: WidgetDataFreshness = .fresh
+        freshness: WidgetDataFreshness = .fresh,
+        showsOnlyCatchableDepartures: Bool = BartTrackSettings.default.showsOnlyCatchableDepartures
     ) {
-        self.presentation = WidgetBoardPresentation(board: board, sizeClass: sizeClass)
+        self.presentation = WidgetBoardPresentation(
+            board: board,
+            sizeClass: sizeClass,
+            showsOnlyCatchableDepartures: showsOnlyCatchableDepartures
+        )
         self.freshness = freshness
     }
 

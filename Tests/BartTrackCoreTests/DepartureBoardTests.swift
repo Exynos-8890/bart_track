@@ -27,6 +27,22 @@ final class DepartureBoardTests: XCTestCase {
         XCTAssertEqual(board.nextCatchable(for: .north)?.minutes, 11)
     }
 
+    func testTrainExactlyAtWalkingTimeIsNotCatchable() {
+        let board = DepartureBoard(
+            station: .dalyCity,
+            generatedAt: Date(timeIntervalSince1970: 1_783_317_600),
+            walkingMinutes: 8,
+            northbound: [
+                testDeparture(minutes: 8),
+                testDeparture(minutes: 9)
+            ],
+            southbound: []
+        )
+
+        XCTAssertEqual(board.catchableNorthbound.map(\.minutes), [9])
+        XCTAssertEqual(board.nextCatchable(for: .north)?.minutes, 9)
+    }
+
     func testBuildsOfficialBartEtdURLForDalyCityJSON() throws {
         let url = BartETDRequest(station: .dalyCity, apiKey: "TEST-KEY").url
 
@@ -35,6 +51,27 @@ final class DepartureBoardTests: XCTestCase {
             "https://api.bart.gov/api/etd.aspx?cmd=etd&orig=DALY&key=TEST-KEY&json=y"
         )
     }
+
+    func testStationListIncludesOfficialBartAbbreviations() {
+        XCTAssertEqual(BartStation.dalyCity.name, "Daly City")
+        XCTAssertEqual(BartStation.dalyCity.abbreviation, "DALY")
+        XCTAssertEqual(BartStation.sanFranciscoAirport.abbreviation, "SFIA")
+        XCTAssertEqual(BartStation.allCases.count, 50)
+    }
+}
+
+private func testDeparture(minutes: Int) -> TrainDeparture {
+    TrainDeparture(
+        destination: "Richmond",
+        destinationAbbreviation: "RICH",
+        minutes: minutes,
+        direction: .north,
+        platform: "2",
+        lineColor: "RED",
+        hexColor: "#ff0000",
+        length: 8,
+        isDynamic: false
+    )
 }
 
 private let bartFixture = """

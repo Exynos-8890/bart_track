@@ -12,7 +12,7 @@ public struct BartTrackWidget: Widget {
             BartTrackWidgetEntryView(entry: entry)
         }
         .configurationDisplayName("Daly City BART")
-        .description("Northbound and southbound departures with an 8-minute walking buffer.")
+        .description("Northbound and southbound departures filtered by your walking buffer.")
         .supportedFamilies([.systemSmall, .systemMedium, .systemLarge, .systemExtraLarge])
     }
 }
@@ -27,7 +27,8 @@ private struct BartTrackWidgetEntryView: View {
             BartDepartureWidgetView(
                 board: entry.board,
                 sizeClass: WidgetFamilyMapper.sizeClass(for: family),
-                freshness: entry.freshness
+                freshness: entry.freshness,
+                showsOnlyCatchableDepartures: entry.settings.showsOnlyCatchableDepartures
             )
 
             if let errorMessage = entry.errorMessage {

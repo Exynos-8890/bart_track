@@ -3,33 +3,49 @@ import BartTrackCore
 @testable import BartTrackWidgetUI
 
 final class WidgetPresentationTests: XCTestCase {
-    func testSmallWidgetKeepsNextTwoTrainsPerDirection() {
+    func testSmallWidgetShowsNextTwoCatchableTrainsByDefault() {
         let presentation = WidgetBoardPresentation(board: sampleBoard, sizeClass: .compact)
 
         XCTAssertEqual(presentation.sections.map(\.direction), [.north, .south])
+        XCTAssertEqual(presentation.sections.map { $0.rows.map(\.minutes) }, [[11, 22], [19]])
+    }
+
+    func testCanShowUnfilteredNextTrainsWhenCatchableFilterIsOff() {
+        let presentation = WidgetBoardPresentation(
+            board: sampleBoard,
+            sizeClass: .compact,
+            showsOnlyCatchableDepartures: false
+        )
+
         XCTAssertEqual(presentation.sections.map { $0.rows.map(\.minutes) }, [[4, 11], [7, 19]])
     }
 
-    func testRectangularWidgetKeepsFourTrainsPerDirection() {
+    func testRectangularWidgetKeepsFourCatchableTrainsPerDirection() {
         let presentation = WidgetBoardPresentation(board: sampleBoard, sizeClass: .rectangular)
 
-        XCTAssertEqual(presentation.sections.map { $0.rows.map(\.minutes) }, [[4, 11, 22, 31], [7, 19]])
+        XCTAssertEqual(presentation.sections.map { $0.rows.map(\.minutes) }, [[11, 22, 31, 43], [19]])
     }
 
-    func testRectangularWidgetKeepsChronologicalOrderEvenWhenLineColorsRepeat() {
+    func testRectangularWidgetKeepsChronologicalOrderAfterFilteringCatchableRows() {
         let presentation = WidgetBoardPresentation(board: colorDiverseBoard, sizeClass: .rectangular)
         let northRows = presentation.sections.first { $0.direction == .north }?.rows
 
-        XCTAssertEqual(northRows?.map(\.minutes), [5, 8, 10, 16])
-        XCTAssertEqual(northRows?.map(\.lineColor), ["YELLOW", "YELLOW", "RED", "BLUE"])
+        XCTAssertEqual(northRows?.map(\.minutes), [10, 16, 19, 22])
+        XCTAssertEqual(northRows?.map(\.lineColor), ["RED", "BLUE", "GREEN", "YELLOW"])
     }
 
-    func testExpandedWidgetKeepsFourTrainsPerDirection() {
+    func testExpandedWidgetKeepsFourCatchableTrainsPerDirection() {
         let presentation = WidgetBoardPresentation(board: sampleBoard, sizeClass: .expanded)
 
-        XCTAssertEqual(presentation.sections.first?.rows.map(\.minutes), [4, 11, 22, 31])
-        XCTAssertEqual(presentation.sections.last?.rows.map(\.minutes), [7, 19])
+        XCTAssertEqual(presentation.sections.first?.rows.map(\.minutes), [11, 22, 31, 43])
+        XCTAssertEqual(presentation.sections.last?.rows.map(\.minutes), [19])
         XCTAssertEqual(presentation.catchableSummary, "N 4 / S 1 after 8 min")
+    }
+
+    func testZeroWalkingMinutesIsAllowedAndStillHidesLeavingTrains() {
+        let presentation = WidgetBoardPresentation(board: zeroWalkingBoard, sizeClass: .compact)
+
+        XCTAssertEqual(presentation.sections.first?.rows.map(\.minutes), [1, 4])
     }
 }
 
@@ -66,6 +82,18 @@ private let colorDiverseBoard = DepartureBoard(
         departure(destination: "SF Airport", minutes: 7, direction: .south, color: "YELLOW", hexColor: "#ffff33"),
         departure(destination: "Millbrae", minutes: 13, direction: .south, color: "RED", hexColor: "#ff0000")
     ]
+)
+
+private let zeroWalkingBoard = DepartureBoard(
+    station: .dalyCity,
+    generatedAt: Date(timeIntervalSince1970: 1_783_317_600),
+    walkingMinutes: 0,
+    northbound: [
+        departure(destination: "Leaving", minutes: 0, direction: .north),
+        departure(destination: "Richmond", minutes: 1, direction: .north),
+        departure(destination: "Antioch", minutes: 4, direction: .north)
+    ],
+    southbound: []
 )
 
 private func departure(

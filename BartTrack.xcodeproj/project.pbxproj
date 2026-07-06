@@ -11,6 +11,7 @@
 		100000000000000000000102 /* BartTrackWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000000000000000000202 /* BartTrackWidgetBundle.swift */; };
 		100000000000000000000103 /* BartTrackWidgetKit in Frameworks */ = {isa = PBXBuildFile; productRef = 100000000000000000000701 /* BartTrackWidgetKit */; };
 		100000000000000000000104 /* BartTrackWidgetExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 100000000000000000000302 /* BartTrackWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		100000000000000000000105 /* BartTrackCore in Frameworks */ = {isa = PBXBuildFile; productRef = 100000000000000000000702 /* BartTrackCore */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -52,6 +53,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				100000000000000000000105 /* BartTrackCore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -120,6 +122,9 @@
 				100000000000000000000802 /* PBXTargetDependency */,
 			);
 			name = BartTrack;
+			packageProductDependencies = (
+				100000000000000000000702 /* BartTrackCore */,
+			);
 			productName = BartTrack;
 			productReference = 100000000000000000000301 /* BartTrack.app */;
 			productType = "com.apple.product-type.application";
@@ -452,6 +457,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 100000000000000000000700 /* XCLocalSwiftPackageReference "." */;
 			productName = BartTrackWidgetKit;
+		};
+		100000000000000000000702 /* BartTrackCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 100000000000000000000700 /* XCLocalSwiftPackageReference "." */;
+			productName = BartTrackCore;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
