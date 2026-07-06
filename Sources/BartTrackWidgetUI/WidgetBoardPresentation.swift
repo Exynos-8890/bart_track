@@ -51,9 +51,45 @@ public struct WidgetBoardPresentation: Equatable, Sendable {
         case .compact:
             return board.nextTwo(for: direction)
         case .rectangular:
-            return Array(board.departures(for: direction).prefix(4))
+            return Self.lineDiverseRows(board: board, direction: direction, limit: 4)
         case .expanded:
-            return Array(board.departures(for: direction).prefix(4))
+            return Self.lineDiverseRows(board: board, direction: direction, limit: 4)
         }
+    }
+
+    private static func lineDiverseRows(
+        board: DepartureBoard,
+        direction: TravelDirection,
+        limit: Int
+    ) -> [TrainDeparture] {
+        let departures = board.departures(for: direction)
+        var selected: [TrainDeparture] = []
+        var selectedIDs = Set<String>()
+        var seenLineColors = Set<String>()
+
+        for departure in departures {
+            let lineKey = departure.lineColor.uppercased()
+            guard !seenLineColors.contains(lineKey) else {
+                continue
+            }
+
+            selected.append(departure)
+            selectedIDs.insert(departure.id)
+            seenLineColors.insert(lineKey)
+
+            if selected.count == limit {
+                return selected
+            }
+        }
+
+        for departure in departures where !selectedIDs.contains(departure.id) {
+            selected.append(departure)
+
+            if selected.count == limit {
+                return selected
+            }
+        }
+
+        return selected
     }
 }

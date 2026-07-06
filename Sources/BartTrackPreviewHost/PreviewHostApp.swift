@@ -51,27 +51,31 @@ private extension DepartureBoard {
         generatedAt: Date(),
         walkingMinutes: 8,
         northbound: [
-            previewDeparture(minutes: 4, direction: .north, color: "BLUE", hexColor: "#0099cc"),
-            previewDeparture(minutes: 11, direction: .north, color: "YELLOW", hexColor: "#ffff33"),
-            previewDeparture(minutes: 30, direction: .north, color: "YELLOW", hexColor: "#ffff33"),
-            previewDeparture(minutes: 50, direction: .north, color: "YELLOW", hexColor: "#ffff33")
+            previewDeparture(destination: "Berryessa", minutes: 0, direction: .north, color: "GREEN", hexColor: "#339933"),
+            previewDeparture(destination: "Pittsburg/Bay Point", minutes: 5, direction: .north, color: "YELLOW", hexColor: "#ffff33"),
+            previewDeparture(destination: "Richmond", minutes: 10, direction: .north, color: "RED", hexColor: "#ff0000"),
+            previewDeparture(destination: "Antioch", minutes: 14, direction: .north, color: "YELLOW", hexColor: "#ffff33"),
+            previewDeparture(destination: "Dublin/Pleasanton", minutes: 16, direction: .north, color: "BLUE", hexColor: "#0099cc"),
+            previewDeparture(destination: "Berryessa", minutes: 19, direction: .north, color: "GREEN", hexColor: "#339933")
         ],
         southbound: [
-            previewDeparture(minutes: 6, direction: .south, color: "YELLOW", hexColor: "#ffff33"),
-            previewDeparture(minutes: 26, direction: .south, color: "YELLOW", hexColor: "#ffff33"),
-            previewDeparture(minutes: 46, direction: .south, color: "YELLOW", hexColor: "#ffff33")
+            previewDeparture(destination: "SF Airport", minutes: 7, direction: .south, color: "YELLOW", hexColor: "#ffff33"),
+            previewDeparture(destination: "Millbrae", minutes: 13, direction: .south, color: "RED", hexColor: "#ff0000"),
+            previewDeparture(destination: "SF Airport", minutes: 18, direction: .south, color: "YELLOW", hexColor: "#ffff33"),
+            previewDeparture(destination: "Millbrae", minutes: 33, direction: .south, color: "RED", hexColor: "#ff0000")
         ]
     )
 
     static func previewDeparture(
+        destination: String,
         minutes: Int,
         direction: TravelDirection,
         color: String,
         hexColor: String
     ) -> TrainDeparture {
         TrainDeparture(
-            destination: direction == .north ? "Antioch" : "SFO/Millbrae",
-            destinationAbbreviation: direction == .north ? "ANTC" : "MLBR",
+            destination: destination,
+            destinationAbbreviation: String(destination.prefix(4)).uppercased(),
             minutes: minutes,
             direction: direction,
             platform: direction == .north ? "2" : "3",

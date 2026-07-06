@@ -16,6 +16,14 @@ final class WidgetPresentationTests: XCTestCase {
         XCTAssertEqual(presentation.sections.map { $0.rows.map(\.minutes) }, [[4, 11, 22, 31], [7, 19]])
     }
 
+    func testRectangularWidgetPrioritizesDistinctLineColorsBeforeDuplicateLines() {
+        let presentation = WidgetBoardPresentation(board: colorDiverseBoard, sizeClass: .rectangular)
+        let northRows = presentation.sections.first { $0.direction == .north }?.rows
+
+        XCTAssertEqual(northRows?.map(\.minutes), [5, 10, 16, 19])
+        XCTAssertEqual(northRows?.map(\.lineColor), ["YELLOW", "RED", "BLUE", "GREEN"])
+    }
+
     func testExpandedWidgetKeepsFourTrainsPerDirection() {
         let presentation = WidgetBoardPresentation(board: sampleBoard, sizeClass: .expanded)
 
@@ -42,15 +50,39 @@ private let sampleBoard = DepartureBoard(
     ]
 )
 
-private func departure(destination: String, minutes: Int, direction: TravelDirection) -> TrainDeparture {
+private let colorDiverseBoard = DepartureBoard(
+    station: .dalyCity,
+    generatedAt: Date(timeIntervalSince1970: 1_783_317_600),
+    walkingMinutes: 8,
+    northbound: [
+        departure(destination: "Pittsburg/Bay Point", minutes: 5, direction: .north, color: "YELLOW", hexColor: "#ffff33"),
+        departure(destination: "Antioch", minutes: 8, direction: .north, color: "YELLOW", hexColor: "#ffff33"),
+        departure(destination: "Richmond", minutes: 10, direction: .north, color: "RED", hexColor: "#ff0000"),
+        departure(destination: "Dublin/Pleasanton", minutes: 16, direction: .north, color: "BLUE", hexColor: "#0099cc"),
+        departure(destination: "Berryessa", minutes: 19, direction: .north, color: "GREEN", hexColor: "#339933"),
+        departure(destination: "Pittsburg/Bay Point", minutes: 22, direction: .north, color: "YELLOW", hexColor: "#ffff33")
+    ],
+    southbound: [
+        departure(destination: "SF Airport", minutes: 7, direction: .south, color: "YELLOW", hexColor: "#ffff33"),
+        departure(destination: "Millbrae", minutes: 13, direction: .south, color: "RED", hexColor: "#ff0000")
+    ]
+)
+
+private func departure(
+    destination: String,
+    minutes: Int,
+    direction: TravelDirection,
+    color: String = "RED",
+    hexColor: String = "#ff0000"
+) -> TrainDeparture {
     TrainDeparture(
         destination: destination,
         destinationAbbreviation: String(destination.prefix(4)).uppercased(),
         minutes: minutes,
         direction: direction,
         platform: direction == .north ? "2" : "1",
-        lineColor: "RED",
-        hexColor: "#ff0000",
+        lineColor: color,
+        hexColor: hexColor,
         length: 8,
         isDynamic: false
     )

@@ -1,4 +1,5 @@
 import SwiftUI
+import WidgetKit
 
 @main
 struct BartTrackApp: App {
@@ -13,6 +14,9 @@ struct BartTrackApp: App {
             }
             .padding(28)
             .frame(width: 420)
+            .onAppear {
+                WidgetCenter.shared.reloadAllTimelines()
+            }
         }
     }
 }
