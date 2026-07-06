@@ -26,7 +26,8 @@ private struct BartTrackWidgetEntryView: View {
         ZStack(alignment: .bottomLeading) {
             BartDepartureWidgetView(
                 board: entry.board,
-                sizeClass: WidgetFamilyMapper.sizeClass(for: family)
+                sizeClass: WidgetFamilyMapper.sizeClass(for: family),
+                freshness: entry.freshness
             )
 
             if let errorMessage = entry.errorMessage {

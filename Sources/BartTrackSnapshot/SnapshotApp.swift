@@ -39,7 +39,7 @@ private struct SnapshotSheet: View {
         }
         .padding(28)
         .frame(width: 960, height: 420, alignment: .topLeading)
-        .background(Color(red: 0.12, green: 0.13, blue: 0.15))
+        .background(Color(red: 0.90, green: 0.93, blue: 0.95))
     }
 }
 
@@ -53,7 +53,7 @@ private struct SnapshotCard: View {
         VStack(alignment: .leading, spacing: 8) {
             Text(title)
                 .font(.system(.caption, design: .rounded).weight(.bold))
-                .foregroundStyle(.white.opacity(0.72))
+                .foregroundStyle(Color(red: 0.22, green: 0.27, blue: 0.31))
 
             BartDepartureWidgetView(board: .preview, sizeClass: sizeClass)
                 .frame(width: width, height: height)

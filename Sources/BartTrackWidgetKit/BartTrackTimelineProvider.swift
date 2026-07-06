@@ -1,15 +1,23 @@
 import BartTrackCore
+import BartTrackWidgetUI
 import Foundation
 import WidgetKit
 
 public struct BartTrackEntry: TimelineEntry {
     public let date: Date
     public let board: DepartureBoard
+    public let freshness: WidgetDataFreshness
     public let errorMessage: String?
 
-    public init(date: Date, board: DepartureBoard, errorMessage: String? = nil) {
+    public init(
+        date: Date,
+        board: DepartureBoard,
+        freshness: WidgetDataFreshness = .fresh,
+        errorMessage: String? = nil
+    ) {
         self.date = date
         self.board = board
+        self.freshness = freshness
         self.errorMessage = errorMessage
     }
 }
@@ -17,13 +25,16 @@ public struct BartTrackEntry: TimelineEntry {
 public struct BartTrackTimelineProvider: TimelineProvider {
     private let service: BartDepartureService
     private let refreshInterval: TimeInterval
+    private let staleInterval: TimeInterval
 
     public init(
         service: BartDepartureService = BartDepartureService(),
-        refreshInterval: TimeInterval = 60
+        refreshInterval: TimeInterval = 30,
+        staleInterval: TimeInterval = 90
     ) {
         self.service = service
         self.refreshInterval = refreshInterval
+        self.staleInterval = staleInterval
     }
 
     public func placeholder(in context: Context) -> BartTrackEntry {
@@ -41,16 +52,28 @@ public struct BartTrackTimelineProvider: TimelineProvider {
 
             do {
                 let board = try await service.loadBoard(station: .dalyCity, walkingMinutes: 8)
-                entry = BartTrackEntry(date: now, board: board)
+                entry = BartTrackEntry(date: now, board: board, freshness: .fresh)
             } catch {
                 entry = BartTrackEntry(
                     date: now,
                     board: .placeholder,
+                    freshness: .stale,
                     errorMessage: "BART feed unavailable"
                 )
             }
 
-            completion(Timeline(entries: [entry], policy: .after(now.addingTimeInterval(refreshInterval))))
+            let staleEntry = BartTrackEntry(
+                date: now.addingTimeInterval(staleInterval),
+                board: entry.board,
+                freshness: .stale,
+                errorMessage: entry.errorMessage
+            )
+            completion(
+                Timeline(
+                    entries: [entry, staleEntry],
+                    policy: .after(now.addingTimeInterval(refreshInterval))
+                )
+            )
         }
     }
 }

@@ -4,9 +4,15 @@ import WidgetKit
 
 public struct BartDepartureWidgetView: View {
     private let presentation: WidgetBoardPresentation
+    private let freshness: WidgetDataFreshness
 
-    public init(board: DepartureBoard, sizeClass: WidgetSizeClass) {
+    public init(
+        board: DepartureBoard,
+        sizeClass: WidgetSizeClass,
+        freshness: WidgetDataFreshness = .fresh
+    ) {
         self.presentation = WidgetBoardPresentation(board: board, sizeClass: sizeClass)
+        self.freshness = freshness
     }
 
     public var body: some View {
@@ -33,7 +39,7 @@ public struct BartDepartureWidgetView: View {
 
     private var compactContent: some View {
         VStack(alignment: .leading, spacing: 7) {
-            CompactHeaderView(board: presentation.board)
+            CompactHeaderView(board: presentation.board, freshness: freshness)
             ForEach(presentation.sections, id: \.direction) { section in
                 CompactDirectionView(section: section)
             }
@@ -43,7 +49,7 @@ public struct BartDepartureWidgetView: View {
 
     private var rectangularContent: some View {
         VStack(alignment: .leading, spacing: 9) {
-            HeaderView(board: presentation.board)
+            HeaderView(board: presentation.board, freshness: freshness)
 
             HStack(alignment: .top, spacing: 8) {
                 ForEach(presentation.sections, id: \.direction) { section in
@@ -56,7 +62,7 @@ public struct BartDepartureWidgetView: View {
 
     private var expandedContent: some View {
         VStack(alignment: .leading, spacing: 14) {
-            HeaderView(board: presentation.board)
+            HeaderView(board: presentation.board, freshness: freshness)
 
             VStack(spacing: 12) {
                 ForEach(presentation.sections, id: \.direction) { section in
@@ -68,16 +74,28 @@ public struct BartDepartureWidgetView: View {
     }
 }
 
+public enum WidgetDataFreshness: Equatable, Sendable {
+    case fresh
+    case stale
+
+    public var isStale: Bool {
+        self == .stale
+    }
+}
+
 private struct CompactHeaderView: View {
     let board: DepartureBoard
+    let freshness: WidgetDataFreshness
 
     var body: some View {
-        HStack(alignment: .center, spacing: 5) {
+        HStack(alignment: .center, spacing: 4) {
             Text("DALY")
                 .font(.system(size: 11, weight: .heavy, design: .rounded))
-                .foregroundStyle(.white.opacity(0.86))
+                .foregroundStyle(Color.ink)
 
             Spacer(minLength: 4)
+
+            FreshnessText(board: board, freshness: freshness, isCompact: true)
 
             Text("+\(board.walkingMinutes)")
                 .font(.system(size: 10, weight: .heavy, design: .rounded))
@@ -85,21 +103,24 @@ private struct CompactHeaderView: View {
                 .foregroundStyle(Color.bartBlue)
                 .padding(.horizontal, 6)
                 .padding(.vertical, 3)
-                .background(.white.opacity(0.94), in: Capsule())
+                .background(Color.bartBlue.opacity(0.12), in: Capsule())
         }
     }
 }
 
 private struct HeaderView: View {
     let board: DepartureBoard
+    let freshness: WidgetDataFreshness
 
     var body: some View {
         HStack(alignment: .center, spacing: 6) {
             Text("DALY")
                 .font(.system(.caption, design: .rounded).weight(.heavy))
-                .foregroundStyle(.white)
+                .foregroundStyle(Color.ink)
 
             Spacer(minLength: 8)
+
+            FreshnessText(board: board, freshness: freshness, isCompact: false)
 
             Text("+\(board.walkingMinutes)m")
                 .font(.system(.caption2, design: .rounded).weight(.heavy))
@@ -107,9 +128,46 @@ private struct HeaderView: View {
                 .foregroundStyle(Color.bartBlue)
                 .padding(.horizontal, 7)
                 .padding(.vertical, 4)
-                .background(.white.opacity(0.94), in: Capsule())
+                .background(Color.bartBlue.opacity(0.12), in: Capsule())
         }
     }
+}
+
+private struct FreshnessText: View {
+    let board: DepartureBoard
+    let freshness: WidgetDataFreshness
+    let isCompact: Bool
+
+    var body: some View {
+        Text(label)
+            .font(.system(size: isCompact ? 9 : 10, weight: .heavy, design: .rounded))
+            .monospacedDigit()
+            .foregroundStyle(freshness.isStale ? Color.stale : Color.mutedInk)
+            .lineLimit(1)
+            .minimumScaleFactor(0.72)
+            .accessibilityLabel(Text(accessibilityLabel))
+    }
+
+    private var label: String {
+        if freshness.isStale {
+            return isCompact ? "OLD" : "STALE \(Self.timeFormatter.string(from: board.generatedAt))"
+        }
+        return Self.timeFormatter.string(from: board.generatedAt)
+    }
+
+    private var accessibilityLabel: String {
+        if freshness.isStale {
+            return "BART data stale. Last updated at \(Self.timeFormatter.string(from: board.generatedAt))"
+        }
+        return "BART data updated at \(Self.timeFormatter.string(from: board.generatedAt))"
+    }
+
+    private static let timeFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.dateFormat = "HH:mm"
+        return formatter
+    }()
 }
 
 private struct CompactDirectionView: View {
@@ -119,7 +177,7 @@ private struct CompactDirectionView: View {
         HStack(spacing: 7) {
             Text(section.direction == .north ? "N" : "S")
                 .font(.system(size: 13, weight: .heavy, design: .rounded))
-                .foregroundStyle(.white.opacity(0.72))
+                .foregroundStyle(Color.mutedInk)
                 .frame(width: 17, alignment: .leading)
 
             if let train = section.rows.first {
@@ -171,7 +229,11 @@ private struct DirectionPanel: View {
             }
         }
         .padding(isExpanded ? 12 : 9)
-        .background(.white.opacity(0.07), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .background(Color.panel, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .stroke(Color.border, lineWidth: 1)
+        )
     }
 }
 
@@ -195,7 +257,7 @@ private struct MinuteTile: View {
         .background(Color(hex: train.hexColor).opacity(0.82), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
         .overlay(
             RoundedRectangle(cornerRadius: 10, style: .continuous)
-                .stroke(.white.opacity(0.16), lineWidth: 1)
+                .stroke(Color.tileBorder, lineWidth: 1)
         )
         .accessibilityLabel(Text("\(train.direction.title), \(train.minutes) minutes"))
     }
@@ -208,9 +270,9 @@ private struct EmptyRow: View {
         Text("--")
             .font(.system(.title3, design: .rounded).weight(.heavy))
             .monospacedDigit()
-            .foregroundStyle(.white.opacity(0.62))
+            .foregroundStyle(Color.mutedInk)
             .frame(maxWidth: .infinity, minHeight: isCompact ? 43 : 36)
-            .background(.white.opacity(0.08), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+            .background(Color.panel, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
     }
 }
 
@@ -220,7 +282,7 @@ private struct DirectionBadge: View {
     var body: some View {
         Text(direction == .north ? "NORTH" : "SOUTH")
             .font(.system(.caption2, design: .rounded).weight(.heavy))
-            .foregroundStyle(.white.opacity(0.72))
+            .foregroundStyle(Color.mutedInk)
             .lineLimit(1)
             .accessibilityLabel(Text(direction.title))
     }
@@ -230,22 +292,22 @@ private struct WidgetBackground: View {
     var body: some View {
         LinearGradient(
             colors: [
-                Color(red: 0.04, green: 0.07, blue: 0.10),
-                Color(red: 0.03, green: 0.12, blue: 0.18)
+                Color(red: 0.95, green: 0.97, blue: 0.98),
+                Color(red: 0.88, green: 0.94, blue: 0.97)
             ],
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         )
         .overlay(alignment: .topTrailing) {
             Circle()
-                .fill(Color.bartBlue.opacity(0.24))
+                .fill(Color.bartBlue.opacity(0.12))
                 .frame(width: 120, height: 120)
                 .blur(radius: 32)
                 .offset(x: 42, y: -48)
         }
         .overlay(alignment: .bottomLeading) {
             Rectangle()
-                .fill(Color.white.opacity(0.08))
+                .fill(Color.white.opacity(0.42))
                 .frame(height: 1)
                 .offset(y: -10)
         }
@@ -255,6 +317,12 @@ private struct WidgetBackground: View {
 private extension Color {
     static let bartBlue = Color(red: 0.00, green: 0.45, blue: 0.78)
     static let bartMint = Color(red: 0.40, green: 0.86, blue: 0.70)
+    static let border = Color(red: 0.64, green: 0.73, blue: 0.78).opacity(0.34)
+    static let ink = Color(red: 0.08, green: 0.11, blue: 0.13)
+    static let mutedInk = Color(red: 0.36, green: 0.43, blue: 0.48)
+    static let panel = Color.white.opacity(0.64)
+    static let stale = Color(red: 0.72, green: 0.16, blue: 0.10)
+    static let tileBorder = Color.white.opacity(0.42)
 
     init(hex: String) {
         guard let rgb = Self.rgbComponents(from: hex) else {
