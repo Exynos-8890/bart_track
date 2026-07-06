@@ -38,26 +38,26 @@ public struct BartDepartureWidgetView: View {
     }
 
     private var compactContent: some View {
-        VStack(alignment: .leading, spacing: 7) {
+        VStack(alignment: .leading, spacing: 5) {
             CompactHeaderView(board: presentation.board, freshness: freshness)
             ForEach(presentation.sections, id: \.direction) { section in
                 CompactDirectionView(section: section)
             }
         }
-        .padding(10)
+        .padding(8)
     }
 
     private var rectangularContent: some View {
-        VStack(alignment: .leading, spacing: 9) {
+        VStack(alignment: .leading, spacing: 7) {
             HeaderView(board: presentation.board, freshness: freshness)
 
-            HStack(alignment: .top, spacing: 8) {
+            HStack(alignment: .top, spacing: 7) {
                 ForEach(presentation.sections, id: \.direction) { section in
                     DirectionSectionView(section: section, isExpanded: false)
                 }
             }
         }
-        .padding(12)
+        .padding(10)
     }
 
     private var expandedContent: some View {
@@ -88,20 +88,20 @@ private struct CompactHeaderView: View {
     let freshness: WidgetDataFreshness
 
     var body: some View {
-        HStack(alignment: .center, spacing: 4) {
+        HStack(alignment: .center, spacing: 3) {
             Text("DALY")
-                .font(.system(size: 11, weight: .heavy, design: .rounded))
+                .font(.system(size: 10, weight: .heavy, design: .rounded))
                 .foregroundStyle(Color.ink)
 
-            Spacer(minLength: 4)
+            Spacer(minLength: 2)
 
             FreshnessText(board: board, freshness: freshness, isCompact: true)
 
             Text("+\(board.walkingMinutes)")
-                .font(.system(size: 10, weight: .heavy, design: .rounded))
+                .font(.system(size: 9, weight: .heavy, design: .rounded))
                 .monospacedDigit()
                 .foregroundStyle(Color.bartBlue)
-                .padding(.horizontal, 6)
+                .padding(.horizontal, 5)
                 .padding(.vertical, 3)
                 .background(Color.bartBlue.opacity(0.12), in: Capsule())
         }
@@ -174,16 +174,18 @@ private struct CompactDirectionView: View {
     let section: WidgetBoardPresentation.Section
 
     var body: some View {
-        HStack(spacing: 7) {
+        HStack(spacing: 5) {
             Text(section.direction == .north ? "N" : "S")
-                .font(.system(size: 13, weight: .heavy, design: .rounded))
+                .font(.system(size: 12, weight: .heavy, design: .rounded))
                 .foregroundStyle(Color.mutedInk)
-                .frame(width: 17, alignment: .leading)
+                .frame(width: 14, alignment: .leading)
 
-            if let train = section.rows.first {
-                MinuteTile(train: train, isLarge: true)
-            } else {
+            if section.rows.isEmpty {
                 EmptyRow(isCompact: true)
+            } else {
+                ForEach(section.rows) { train in
+                    MinuteTile(train: train, isLarge: false, isCompact: true)
+                }
             }
         }
         .frame(maxHeight: .infinity)
@@ -205,30 +207,33 @@ private struct DirectionPanel: View {
     let isExpanded: Bool
 
     private var columns: [GridItem] {
-        [GridItem(.adaptive(minimum: isExpanded ? 96 : 48), spacing: 8)]
+        [
+            GridItem(.flexible(), spacing: isExpanded ? 8 : 5),
+            GridItem(.flexible(), spacing: isExpanded ? 8 : 5)
+        ]
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: isExpanded ? 9 : 6) {
+        VStack(alignment: .leading, spacing: isExpanded ? 9 : 5) {
             DirectionBadge(direction: section.direction)
 
             if section.rows.isEmpty {
                 EmptyRow(isCompact: false)
-            } else if isExpanded {
-                LazyVGrid(columns: columns, alignment: .leading, spacing: 6) {
+            } else if isExpanded || section.rows.count > 2 {
+                LazyVGrid(columns: columns, alignment: .leading, spacing: isExpanded ? 6 : 5) {
                     ForEach(section.rows) { train in
-                        MinuteTile(train: train, isLarge: true)
+                        MinuteTile(train: train, isLarge: isExpanded)
                     }
                 }
             } else {
-                HStack(spacing: 6) {
+                HStack(spacing: 5) {
                     ForEach(section.rows) { train in
                         MinuteTile(train: train, isLarge: section.rows.count == 1)
                     }
                 }
             }
         }
-        .padding(isExpanded ? 12 : 9)
+        .padding(isExpanded ? 12 : 7)
         .background(Color.panel, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
         .overlay(
             RoundedRectangle(cornerRadius: 12, style: .continuous)
@@ -240,11 +245,12 @@ private struct DirectionPanel: View {
 private struct MinuteTile: View {
     let train: TrainDeparture
     let isLarge: Bool
+    var isCompact: Bool = false
 
     var body: some View {
         HStack(alignment: .firstTextBaseline, spacing: 2) {
             Text("\(train.minutes)")
-                .font(.system(isLarge ? .title2 : .title3, design: .rounded).weight(.heavy))
+                .font(.system(minuteFont, design: .rounded).weight(.heavy))
                 .monospacedDigit()
             Text("m")
                 .font(.system(.caption2, design: .rounded).weight(.heavy))
@@ -252,14 +258,31 @@ private struct MinuteTile: View {
         .foregroundStyle(Color.readableText(onHex: train.hexColor))
         .lineLimit(1)
         .minimumScaleFactor(0.7)
-        .frame(maxWidth: .infinity, minHeight: isLarge ? 43 : 36)
-        .padding(.horizontal, isLarge ? 8 : 6)
-        .background(Color(hex: train.hexColor).opacity(0.82), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+        .frame(maxWidth: .infinity, minHeight: tileHeight)
+        .padding(.horizontal, isCompact ? 4 : (isLarge ? 8 : 5))
+        .background(
+            Color(hex: train.hexColor).opacity(0.82),
+            in: RoundedRectangle(cornerRadius: isCompact ? 9 : 10, style: .continuous)
+        )
         .overlay(
-            RoundedRectangle(cornerRadius: 10, style: .continuous)
+            RoundedRectangle(cornerRadius: isCompact ? 9 : 10, style: .continuous)
                 .stroke(Color.tileBorder, lineWidth: 1)
         )
         .accessibilityLabel(Text("\(train.direction.title), \(train.minutes) minutes"))
+    }
+
+    private var minuteFont: Font.TextStyle {
+        if isCompact {
+            return .title3
+        }
+        return isLarge ? .title2 : .title3
+    }
+
+    private var tileHeight: CGFloat {
+        if isCompact {
+            return 34
+        }
+        return isLarge ? 43 : 32
     }
 }
 
@@ -271,7 +294,7 @@ private struct EmptyRow: View {
             .font(.system(.title3, design: .rounded).weight(.heavy))
             .monospacedDigit()
             .foregroundStyle(Color.mutedInk)
-            .frame(maxWidth: .infinity, minHeight: isCompact ? 43 : 36)
+            .frame(maxWidth: .infinity, minHeight: isCompact ? 34 : 32)
             .background(Color.panel, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
     }
 }

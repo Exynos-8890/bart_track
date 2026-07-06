@@ -3,23 +3,23 @@ import BartTrackCore
 @testable import BartTrackWidgetUI
 
 final class WidgetPresentationTests: XCTestCase {
-    func testSmallWidgetKeepsOneCatchableTrainPerDirection() {
+    func testSmallWidgetKeepsNextTwoTrainsPerDirection() {
         let presentation = WidgetBoardPresentation(board: sampleBoard, sizeClass: .compact)
 
         XCTAssertEqual(presentation.sections.map(\.direction), [.north, .south])
-        XCTAssertEqual(presentation.sections.map { $0.rows.map(\.minutes) }, [[11], [19]])
-    }
-
-    func testRectangularWidgetKeepsNextTwoTrainsPerDirection() {
-        let presentation = WidgetBoardPresentation(board: sampleBoard, sizeClass: .rectangular)
-
         XCTAssertEqual(presentation.sections.map { $0.rows.map(\.minutes) }, [[4, 11], [7, 19]])
     }
 
-    func testExpandedWidgetKeepsNextTwoTrainsPerDirection() {
+    func testRectangularWidgetKeepsFourTrainsPerDirection() {
+        let presentation = WidgetBoardPresentation(board: sampleBoard, sizeClass: .rectangular)
+
+        XCTAssertEqual(presentation.sections.map { $0.rows.map(\.minutes) }, [[4, 11, 22, 31], [7, 19]])
+    }
+
+    func testExpandedWidgetKeepsFourTrainsPerDirection() {
         let presentation = WidgetBoardPresentation(board: sampleBoard, sizeClass: .expanded)
 
-        XCTAssertEqual(presentation.sections.first?.rows.map(\.minutes), [4, 11])
+        XCTAssertEqual(presentation.sections.first?.rows.map(\.minutes), [4, 11, 22, 31])
         XCTAssertEqual(presentation.sections.last?.rows.map(\.minutes), [7, 19])
         XCTAssertEqual(presentation.catchableSummary, "N 4 / S 1 after 8 min")
     }

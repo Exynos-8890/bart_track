@@ -49,11 +49,11 @@ public struct WidgetBoardPresentation: Equatable, Sendable {
     ) -> [TrainDeparture] {
         switch sizeClass {
         case .compact:
-            return board.nextCatchable(for: direction).map { [$0] } ?? []
+            return board.nextTwo(for: direction)
         case .rectangular:
-            return board.nextTwo(for: direction)
+            return Array(board.departures(for: direction).prefix(4))
         case .expanded:
-            return board.nextTwo(for: direction)
+            return Array(board.departures(for: direction).prefix(4))
         }
     }
 }
