@@ -8,11 +8,43 @@ struct BartTrackApp: App {
     var body: some Scene {
         WindowGroup {
             BartTrackSettingsView()
+                .onOpenURL { url in
+                    Self.handleOpenURL(url)
+                }
         }
     }
 
     static func applyDockPolicy(settings: BartTrackSettings) {
         NSApp.setActivationPolicy(settings.showsDockIcon ? .regular : .accessory)
+    }
+
+    static func handleOpenURL(
+        _ url: URL,
+        settingsStore: BartTrackSettingsStore = BartTrackSettingsStore(),
+        logger: BartTrackDebugLogger = BartTrackDebugLogger()
+    ) {
+        logger.log("app.openURL", metadata: ["url": url.absoluteString])
+
+        guard url.scheme == "barttrack",
+              url.host == "open-live-bart"
+        else {
+            logger.log("app.openURL.ignored", metadata: ["url": url.absoluteString])
+            return
+        }
+
+        let settings = settingsStore.load()
+        guard let targetURL = settings.openURL else {
+            logger.log("app.openLiveBart.failed", metadata: ["reason": "invalid-target-url"])
+            return
+        }
+
+        logger.log("app.openLiveBart", metadata: ["target": targetURL.absoluteString])
+        NSWorkspace.shared.open(targetURL)
+
+        DispatchQueue.main.async {
+            applyDockPolicy(settings: settings)
+            NSApp.hide(nil)
+        }
     }
 }
 

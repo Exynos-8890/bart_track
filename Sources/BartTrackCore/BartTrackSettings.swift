@@ -2,6 +2,7 @@ import Foundation
 
 public struct BartTrackSettings: Codable, Equatable, Sendable {
     public static let defaultOpenURLString = "https://www.bart.gov/schedules/eta/DALY"
+    public static let liveBartDeepLinkURL = URL(string: "barttrack://open-live-bart")!
 
     public static let `default` = BartTrackSettings(
         station: .dalyCity,

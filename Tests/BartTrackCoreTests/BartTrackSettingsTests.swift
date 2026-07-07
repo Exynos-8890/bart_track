@@ -11,6 +11,11 @@ final class BartTrackSettingsTests: XCTestCase {
         XCTAssertEqual(BartTrackSettings.default.openURL?.path, "/schedules/eta/DALY")
     }
 
+    func testLiveBartDeepLinkTargetsAppURLScheme() {
+        XCTAssertEqual(BartTrackSettings.liveBartDeepLinkURL.scheme, "barttrack")
+        XCTAssertEqual(BartTrackSettings.liveBartDeepLinkURL.host, "open-live-bart")
+    }
+
     func testOldSettingsFilesUseDefaultOpenURL() throws {
         let data = """
         {

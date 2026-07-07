@@ -30,7 +30,7 @@ private struct BartTrackWidgetEntryView: View {
                 sizeClass: WidgetFamilyMapper.sizeClass(for: family),
                 freshness: entry.freshness,
                 showsOnlyCatchableDepartures: entry.settings.showsOnlyCatchableDepartures,
-                openURL: entry.settings.openURL
+                openURL: BartTrackSettings.liveBartDeepLinkURL
             )
 
             if let errorMessage = entry.errorMessage {
@@ -43,5 +43,6 @@ private struct BartTrackWidgetEntryView: View {
                     .padding(10)
             }
         }
+        .widgetURL(WidgetFamilyMapper.sizeClass(for: family) == .compact ? BartTrackSettings.liveBartDeepLinkURL : nil)
     }
 }
