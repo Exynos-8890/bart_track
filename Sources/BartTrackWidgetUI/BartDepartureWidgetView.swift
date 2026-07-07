@@ -46,42 +46,45 @@ public struct BartDepartureWidgetView: View {
     }
 
     private var compactContent: some View {
-        VStack(alignment: .leading, spacing: 5) {
+        VStack(alignment: .leading, spacing: 4) {
             CompactHeaderView(board: presentation.board, freshness: freshness, openURL: openURL)
 
-            HStack(alignment: .top, spacing: 6) {
+            HStack(alignment: .top, spacing: 5) {
                 ForEach(presentation.sections, id: \.direction) { section in
                     CompactDirectionView(section: section)
                 }
             }
         }
-        .padding(8)
+        .padding(.horizontal, 6)
+        .padding(.vertical, 6)
     }
 
     private var rectangularContent: some View {
-        VStack(alignment: .leading, spacing: 7) {
+        VStack(alignment: .leading, spacing: 6) {
             HeaderView(board: presentation.board, freshness: freshness, openURL: openURL)
 
-            HStack(alignment: .top, spacing: 7) {
+            HStack(alignment: .top, spacing: 6) {
                 ForEach(presentation.sections, id: \.direction) { section in
                     DirectionSectionView(section: section, isExpanded: false)
                 }
             }
         }
-        .padding(10)
+        .padding(.horizontal, 8)
+        .padding(.vertical, 8)
     }
 
     private var expandedContent: some View {
-        VStack(alignment: .leading, spacing: 14) {
+        VStack(alignment: .leading, spacing: 10) {
             HeaderView(board: presentation.board, freshness: freshness, openURL: openURL)
 
-            VStack(spacing: 12) {
+            VStack(spacing: 9) {
                 ForEach(presentation.sections, id: \.direction) { section in
                     DirectionSectionView(section: section, isExpanded: true)
                 }
             }
         }
-        .padding(14)
+        .padding(.horizontal, 10)
+        .padding(.vertical, 10)
     }
 }
 
@@ -261,26 +264,26 @@ private struct DirectionPanel: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: isExpanded ? 6 : 5) {
+        VStack(alignment: .leading, spacing: isExpanded ? 5 : 4) {
             DirectionBadge(direction: section.direction)
 
             if section.rows.isEmpty {
                 EmptyRow(isCompact: false)
             } else if isExpanded || section.rows.count > 2 {
-                LazyVGrid(columns: columns, alignment: .leading, spacing: isExpanded ? 5 : 5) {
+                LazyVGrid(columns: columns, alignment: .leading, spacing: 4) {
                     ForEach(section.rows) { train in
                         MinuteTile(train: train, isLarge: isExpanded)
                     }
                 }
             } else {
-                HStack(spacing: 5) {
+                HStack(spacing: 4) {
                     ForEach(section.rows) { train in
                         MinuteTile(train: train, isLarge: section.rows.count == 1)
                     }
                 }
             }
         }
-        .padding(isExpanded ? 9 : 7)
+        .padding(isExpanded ? 7 : 6)
         .background(Color.panel, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
         .overlay(
             RoundedRectangle(cornerRadius: 12, style: .continuous)

@@ -14,6 +14,7 @@ public struct BartTrackWidget: Widget {
         }
         .configurationDisplayName("Daly City BART")
         .description("Northbound and southbound departures filtered by your walking buffer.")
+        .contentMarginsDisabled()
         .supportedFamilies([.systemSmall, .systemMedium, .systemLarge, .systemExtraLarge])
     }
 }
