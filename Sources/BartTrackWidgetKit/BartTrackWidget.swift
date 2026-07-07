@@ -29,7 +29,8 @@ private struct BartTrackWidgetEntryView: View {
                 board: entry.board,
                 sizeClass: WidgetFamilyMapper.sizeClass(for: family),
                 freshness: entry.freshness,
-                showsOnlyCatchableDepartures: entry.settings.showsOnlyCatchableDepartures
+                showsOnlyCatchableDepartures: entry.settings.showsOnlyCatchableDepartures,
+                openURL: entry.settings.openURL
             )
 
             if let errorMessage = entry.errorMessage {
@@ -42,6 +43,5 @@ private struct BartTrackWidgetEntryView: View {
                     .padding(10)
             }
         }
-        .widgetURL(entry.settings.openURL)
     }
 }

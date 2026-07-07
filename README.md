@@ -8,7 +8,7 @@ Bart Track 是一个 macOS 桌面小组件，用来查看 BART 车站的实时�
 - 设置步行到车站的时间，默认 `8` 分钟，范围 `0...60`。
 - 选择是否只显示可赶上的车，默认开启。
 - 主 App 默认隐藏 Dock 图标；可以在设置里重新打开。
-- 点击小组件会打开 BART 官方 Daly City 实时出发页面。
+- 点击小组件里的 `LIVE BART` 按钮会打开 BART 官方 Daly City 实时出发页面。
 - 在 small / medium / large / extra large Widget 尺寸下显示不同密度的信息。
 - 显示数据更新时间；如果 WidgetKit 没有及时刷新，会显示 `OLD` / `STALE`。
 - 写入 debug log，方便排查为什么信息变旧。
@@ -35,7 +35,7 @@ Bart Track 是一个 macOS 桌面小组件，用来查看 BART 车站的实时�
 - `walkingMinutes: 8`：你需要 8 分钟走到车站。
 - `showsOnlyCatchableDepartures: true`：只显示到站时间大于 8 分钟的车。
 - `showsDockIcon: false`：主 App 运行时不显示 Dock 图标。
-- `openURLString`：点击小组件时打开的网页，默认是 BART 官方 Daly City 实时出发页。
+- `openURLString`：点击小组件里 `LIVE BART` 按钮时打开的网页，默认是 BART 官方 Daly City 实时出发页。
 
 例如某辆车 `7m` 后到站，步行时间是 `8`，它会被隐藏，因为你大概率赶不上。某辆车 `10m` 后到站，它会显示。
 
@@ -45,9 +45,9 @@ Bart Track 是一个 macOS 桌面小组件，用来查看 BART 车站的实时�
 
 当前展示密度：
 
-- Small / `1x1`：每个方向最多显示 2 班可赶上的车。
+- Small / `1x1`：每个方向最多显示 3 班可赶上的车，左右两列分别显示 north / south。
 - Medium / `1x2`：每个方向最多显示 4 班可赶上的车。
-- Large / `2x2` 和 Extra Large：每个方向最多显示 4 班可赶上的车，并给更多空间。
+- Large / `2x2` 和 Extra Large：每个方向最多显示 8 班可赶上的车。
 
 每个车次只显示分钟数和线路颜色，不显示终点站、站台、catchable count 等占空间的信息。
 
@@ -65,7 +65,7 @@ App 窗口里可以修改：
 - `Walking time`：从你当前位置走到车站需要几分钟。
 - `Show only later trains`：是否只显示大于步行时间的车。
 - `Show Dock icon`：是否让主 App 出现在 Dock 栏。
-- `Open URL`：点击桌面小组件时打开的网页。
+- `Open URL`：点击桌面小组件里 `LIVE BART` 按钮时打开的网页。
 
 修改后 App 会自动保存配置，并调用 `WidgetCenter.shared.reloadAllTimelines()` 请求系统刷新小组件。
 
@@ -113,7 +113,7 @@ open -e "$HOME/Library/Containers/com.local.BartTrack.WidgetExtension/Data/Libra
 | `walkingMinutes` | number | 走到车站需要几分钟；会被限制在 `0...60`。 |
 | `showsOnlyCatchableDepartures` | boolean | `true` 只显示到站时间大于步行时间的车；`false` 显示原始时间顺序里的车。 |
 | `showsDockIcon` | boolean | `false` 隐藏主 App 的 Dock 图标；`true` 显示 Dock 图标。 |
-| `openURLString` | string | 点击小组件时打开的 URL，例如 `https://www.bart.gov/schedules/eta/DALY`。 |
+| `openURLString` | string | 点击小组件里 `LIVE BART` 按钮时打开的 URL，例如 `https://www.bart.gov/schedules/eta/DALY`。 |
 
 手动改完配置后，建议打开 Bart Track App 点一次 `Reload Widget`，或者重新打开 App：
 

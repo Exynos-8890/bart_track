@@ -73,13 +73,22 @@ private extension DepartureBoard {
             previewDeparture(destination: "Richmond", minutes: 10, direction: .north, color: "RED", hexColor: "#ff0000"),
             previewDeparture(destination: "Antioch", minutes: 14, direction: .north, color: "YELLOW", hexColor: "#ffff33"),
             previewDeparture(destination: "Dublin/Pleasanton", minutes: 16, direction: .north, color: "BLUE", hexColor: "#0099cc"),
-            previewDeparture(destination: "Berryessa", minutes: 19, direction: .north, color: "GREEN", hexColor: "#339933")
+            previewDeparture(destination: "Berryessa", minutes: 19, direction: .north, color: "GREEN", hexColor: "#339933"),
+            previewDeparture(destination: "Richmond", minutes: 28, direction: .north, color: "RED", hexColor: "#ff0000"),
+            previewDeparture(destination: "Antioch", minutes: 37, direction: .north, color: "YELLOW", hexColor: "#ffff33"),
+            previewDeparture(destination: "Dublin/Pleasanton", minutes: 49, direction: .north, color: "BLUE", hexColor: "#0099cc"),
+            previewDeparture(destination: "Berryessa", minutes: 58, direction: .north, color: "GREEN", hexColor: "#339933")
         ],
         southbound: [
             previewDeparture(destination: "SF Airport", minutes: 7, direction: .south, color: "YELLOW", hexColor: "#ffff33"),
             previewDeparture(destination: "Millbrae", minutes: 13, direction: .south, color: "RED", hexColor: "#ff0000"),
             previewDeparture(destination: "SF Airport", minutes: 18, direction: .south, color: "YELLOW", hexColor: "#ffff33"),
-            previewDeparture(destination: "Millbrae", minutes: 33, direction: .south, color: "RED", hexColor: "#ff0000")
+            previewDeparture(destination: "Millbrae", minutes: 33, direction: .south, color: "RED", hexColor: "#ff0000"),
+            previewDeparture(destination: "SF Airport", minutes: 41, direction: .south, color: "YELLOW", hexColor: "#ffff33"),
+            previewDeparture(destination: "Millbrae", minutes: 52, direction: .south, color: "RED", hexColor: "#ff0000"),
+            previewDeparture(destination: "SF Airport", minutes: 64, direction: .south, color: "YELLOW", hexColor: "#ffff33"),
+            previewDeparture(destination: "Millbrae", minutes: 76, direction: .south, color: "RED", hexColor: "#ff0000"),
+            previewDeparture(destination: "SF Airport", minutes: 88, direction: .south, color: "YELLOW", hexColor: "#ffff33")
         ]
     )
 

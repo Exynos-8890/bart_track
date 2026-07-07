@@ -5,12 +5,14 @@ import WidgetKit
 public struct BartDepartureWidgetView: View {
     private let presentation: WidgetBoardPresentation
     private let freshness: WidgetDataFreshness
+    private let openURL: URL?
 
     public init(
         board: DepartureBoard,
         sizeClass: WidgetSizeClass,
         freshness: WidgetDataFreshness = .fresh,
-        showsOnlyCatchableDepartures: Bool = BartTrackSettings.default.showsOnlyCatchableDepartures
+        showsOnlyCatchableDepartures: Bool = BartTrackSettings.default.showsOnlyCatchableDepartures,
+        openURL: URL? = BartTrackSettings.default.openURL
     ) {
         self.presentation = WidgetBoardPresentation(
             board: board,
@@ -18,6 +20,7 @@ public struct BartDepartureWidgetView: View {
             showsOnlyCatchableDepartures: showsOnlyCatchableDepartures
         )
         self.freshness = freshness
+        self.openURL = openURL
     }
 
     public var body: some View {
@@ -44,9 +47,12 @@ public struct BartDepartureWidgetView: View {
 
     private var compactContent: some View {
         VStack(alignment: .leading, spacing: 5) {
-            CompactHeaderView(board: presentation.board, freshness: freshness)
-            ForEach(presentation.sections, id: \.direction) { section in
-                CompactDirectionView(section: section)
+            CompactHeaderView(board: presentation.board, freshness: freshness, openURL: openURL)
+
+            HStack(alignment: .top, spacing: 6) {
+                ForEach(presentation.sections, id: \.direction) { section in
+                    CompactDirectionView(section: section)
+                }
             }
         }
         .padding(8)
@@ -54,7 +60,7 @@ public struct BartDepartureWidgetView: View {
 
     private var rectangularContent: some View {
         VStack(alignment: .leading, spacing: 7) {
-            HeaderView(board: presentation.board, freshness: freshness)
+            HeaderView(board: presentation.board, freshness: freshness, openURL: openURL)
 
             HStack(alignment: .top, spacing: 7) {
                 ForEach(presentation.sections, id: \.direction) { section in
@@ -67,7 +73,7 @@ public struct BartDepartureWidgetView: View {
 
     private var expandedContent: some View {
         VStack(alignment: .leading, spacing: 14) {
-            HeaderView(board: presentation.board, freshness: freshness)
+            HeaderView(board: presentation.board, freshness: freshness, openURL: openURL)
 
             VStack(spacing: 12) {
                 ForEach(presentation.sections, id: \.direction) { section in
@@ -91,12 +97,11 @@ public enum WidgetDataFreshness: Equatable, Sendable {
 private struct CompactHeaderView: View {
     let board: DepartureBoard
     let freshness: WidgetDataFreshness
+    let openURL: URL?
 
     var body: some View {
         HStack(alignment: .center, spacing: 3) {
-            Text("DALY")
-                .font(.system(size: 10, weight: .heavy, design: .rounded))
-                .foregroundStyle(Color.ink)
+            OpenBartLink(openURL: openURL, isCompact: true)
 
             Spacer(minLength: 2)
 
@@ -116,12 +121,11 @@ private struct CompactHeaderView: View {
 private struct HeaderView: View {
     let board: DepartureBoard
     let freshness: WidgetDataFreshness
+    let openURL: URL?
 
     var body: some View {
         HStack(alignment: .center, spacing: 6) {
-            Text("DALY")
-                .font(.system(.caption, design: .rounded).weight(.heavy))
-                .foregroundStyle(Color.ink)
+            OpenBartLink(openURL: openURL, isCompact: false)
 
             Spacer(minLength: 8)
 
@@ -135,6 +139,42 @@ private struct HeaderView: View {
                 .padding(.vertical, 4)
                 .background(Color.bartBlue.opacity(0.12), in: Capsule())
         }
+    }
+}
+
+private struct OpenBartLink: View {
+    let openURL: URL?
+    let isCompact: Bool
+
+    var body: some View {
+        if let openURL {
+            Link(destination: openURL) {
+                label
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(Text("Open BART real time departures"))
+        } else {
+            label
+        }
+    }
+
+    private var label: some View {
+        HStack(spacing: isCompact ? 2 : 3) {
+            Text("LIVE BART")
+                .lineLimit(1)
+                .minimumScaleFactor(0.76)
+            Image(systemName: "arrow.up.forward")
+                .font(.system(size: isCompact ? 7 : 8, weight: .heavy, design: .rounded))
+        }
+        .font(.system(size: isCompact ? 8 : 10, weight: .heavy, design: .rounded))
+        .foregroundStyle(Color.bartBlue)
+        .padding(.horizontal, isCompact ? 5 : 6)
+        .padding(.vertical, isCompact ? 3 : 4)
+        .background(Color.white.opacity(0.78), in: Capsule())
+        .overlay(
+            Capsule()
+                .stroke(Color.bartBlue.opacity(0.18), lineWidth: 1)
+        )
     }
 }
 
@@ -179,11 +219,13 @@ private struct CompactDirectionView: View {
     let section: WidgetBoardPresentation.Section
 
     var body: some View {
-        HStack(spacing: 5) {
-            Text(section.direction == .north ? "N" : "S")
-                .font(.system(size: 12, weight: .heavy, design: .rounded))
+        VStack(alignment: .leading, spacing: 4) {
+            Text(section.direction == .north ? "NORTH" : "SOUTH")
+                .font(.system(size: 9, weight: .heavy, design: .rounded))
                 .foregroundStyle(Color.mutedInk)
-                .frame(width: 14, alignment: .leading)
+                .lineLimit(1)
+                .minimumScaleFactor(0.78)
+                .frame(maxWidth: .infinity, alignment: .leading)
 
             if section.rows.isEmpty {
                 EmptyRow(isCompact: true)
@@ -193,7 +235,7 @@ private struct CompactDirectionView: View {
                 }
             }
         }
-        .frame(maxHeight: .infinity)
+        .frame(maxWidth: .infinity, alignment: .topLeading)
     }
 }
 
@@ -212,20 +254,20 @@ private struct DirectionPanel: View {
     let isExpanded: Bool
 
     private var columns: [GridItem] {
-        [
-            GridItem(.flexible(), spacing: isExpanded ? 8 : 5),
-            GridItem(.flexible(), spacing: isExpanded ? 8 : 5)
-        ]
+        Array(
+            repeating: GridItem(.flexible(), spacing: isExpanded ? 6 : 5),
+            count: isExpanded ? 4 : 2
+        )
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: isExpanded ? 9 : 5) {
+        VStack(alignment: .leading, spacing: isExpanded ? 6 : 5) {
             DirectionBadge(direction: section.direction)
 
             if section.rows.isEmpty {
                 EmptyRow(isCompact: false)
             } else if isExpanded || section.rows.count > 2 {
-                LazyVGrid(columns: columns, alignment: .leading, spacing: isExpanded ? 6 : 5) {
+                LazyVGrid(columns: columns, alignment: .leading, spacing: isExpanded ? 5 : 5) {
                     ForEach(section.rows) { train in
                         MinuteTile(train: train, isLarge: isExpanded)
                     }
@@ -238,7 +280,7 @@ private struct DirectionPanel: View {
                 }
             }
         }
-        .padding(isExpanded ? 12 : 7)
+        .padding(isExpanded ? 9 : 7)
         .background(Color.panel, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
         .overlay(
             RoundedRectangle(cornerRadius: 12, style: .continuous)
@@ -264,7 +306,7 @@ private struct MinuteTile: View {
         .lineLimit(1)
         .minimumScaleFactor(0.7)
         .frame(maxWidth: .infinity, minHeight: tileHeight)
-        .padding(.horizontal, isCompact ? 4 : (isLarge ? 8 : 5))
+        .padding(.horizontal, isCompact ? 4 : (isLarge ? 6 : 5))
         .background(
             Color(hex: train.hexColor).opacity(0.82),
             in: RoundedRectangle(cornerRadius: isCompact ? 9 : 10, style: .continuous)
@@ -278,16 +320,16 @@ private struct MinuteTile: View {
 
     private var minuteFont: Font.TextStyle {
         if isCompact {
-            return .title3
+            return .body
         }
-        return isLarge ? .title2 : .title3
+        return isLarge ? .title3 : .title3
     }
 
     private var tileHeight: CGFloat {
         if isCompact {
-            return 34
+            return 26
         }
-        return isLarge ? 43 : 32
+        return isLarge ? 36 : 32
     }
 }
 
@@ -299,7 +341,7 @@ private struct EmptyRow: View {
             .font(.system(.title3, design: .rounded).weight(.heavy))
             .monospacedDigit()
             .foregroundStyle(Color.mutedInk)
-            .frame(maxWidth: .infinity, minHeight: isCompact ? 34 : 32)
+            .frame(maxWidth: .infinity, minHeight: isCompact ? 26 : 32)
             .background(Color.panel, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
     }
 }

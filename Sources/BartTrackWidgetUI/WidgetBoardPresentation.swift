@@ -64,11 +64,11 @@ public struct WidgetBoardPresentation: Equatable, Sendable {
 
         switch sizeClass {
         case .compact:
-            return Array(visibleDepartures.prefix(2))
+            return Array(visibleDepartures.prefix(3))
         case .rectangular:
             return Array(visibleDepartures.prefix(4))
         case .expanded:
-            return Array(visibleDepartures.prefix(4))
+            return Array(visibleDepartures.prefix(8))
         }
     }
 }

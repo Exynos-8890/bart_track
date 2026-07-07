@@ -3,11 +3,11 @@ import BartTrackCore
 @testable import BartTrackWidgetUI
 
 final class WidgetPresentationTests: XCTestCase {
-    func testSmallWidgetShowsNextTwoCatchableTrainsByDefault() {
+    func testSmallWidgetShowsNextThreeCatchableTrainsByDefault() {
         let presentation = WidgetBoardPresentation(board: sampleBoard, sizeClass: .compact)
 
         XCTAssertEqual(presentation.sections.map(\.direction), [.north, .south])
-        XCTAssertEqual(presentation.sections.map { $0.rows.map(\.minutes) }, [[11, 22], [19]])
+        XCTAssertEqual(presentation.sections.map { $0.rows.map(\.minutes) }, [[11, 22, 31], [19, 26, 34]])
     }
 
     func testCanShowUnfilteredNextTrainsWhenCatchableFilterIsOff() {
@@ -17,13 +17,13 @@ final class WidgetPresentationTests: XCTestCase {
             showsOnlyCatchableDepartures: false
         )
 
-        XCTAssertEqual(presentation.sections.map { $0.rows.map(\.minutes) }, [[4, 11], [7, 19]])
+        XCTAssertEqual(presentation.sections.map { $0.rows.map(\.minutes) }, [[4, 11, 22], [7, 19, 26]])
     }
 
     func testRectangularWidgetKeepsFourCatchableTrainsPerDirection() {
         let presentation = WidgetBoardPresentation(board: sampleBoard, sizeClass: .rectangular)
 
-        XCTAssertEqual(presentation.sections.map { $0.rows.map(\.minutes) }, [[11, 22, 31, 43], [19]])
+        XCTAssertEqual(presentation.sections.map { $0.rows.map(\.minutes) }, [[11, 22, 31, 43], [19, 26, 34, 48]])
     }
 
     func testRectangularWidgetKeepsChronologicalOrderAfterFilteringCatchableRows() {
@@ -34,12 +34,12 @@ final class WidgetPresentationTests: XCTestCase {
         XCTAssertEqual(northRows?.map(\.lineColor), ["RED", "BLUE", "GREEN", "YELLOW"])
     }
 
-    func testExpandedWidgetKeepsFourCatchableTrainsPerDirection() {
+    func testExpandedWidgetKeepsEightCatchableTrainsPerDirection() {
         let presentation = WidgetBoardPresentation(board: sampleBoard, sizeClass: .expanded)
 
-        XCTAssertEqual(presentation.sections.first?.rows.map(\.minutes), [11, 22, 31, 43])
-        XCTAssertEqual(presentation.sections.last?.rows.map(\.minutes), [19])
-        XCTAssertEqual(presentation.catchableSummary, "N 4 / S 1 after 8 min")
+        XCTAssertEqual(presentation.sections.first?.rows.map(\.minutes), [11, 22, 31, 43, 51, 62, 75, 88])
+        XCTAssertEqual(presentation.sections.last?.rows.map(\.minutes), [19, 26, 34, 48, 57, 66, 74, 89])
+        XCTAssertEqual(presentation.catchableSummary, "N 8 / S 8 after 8 min")
     }
 
     func testZeroWalkingMinutesIsAllowedAndStillHidesLeavingTrains() {
@@ -58,11 +58,22 @@ private let sampleBoard = DepartureBoard(
         departure(destination: "Antioch", minutes: 11, direction: .north),
         departure(destination: "Berryessa", minutes: 22, direction: .north),
         departure(destination: "Dublin", minutes: 31, direction: .north),
-        departure(destination: "Richmond", minutes: 43, direction: .north)
+        departure(destination: "Richmond", minutes: 43, direction: .north),
+        departure(destination: "Antioch", minutes: 51, direction: .north),
+        departure(destination: "Berryessa", minutes: 62, direction: .north),
+        departure(destination: "Dublin", minutes: 75, direction: .north),
+        departure(destination: "Richmond", minutes: 88, direction: .north)
     ],
     southbound: [
         departure(destination: "Millbrae", minutes: 7, direction: .south),
-        departure(destination: "SFO", minutes: 19, direction: .south)
+        departure(destination: "SFO", minutes: 19, direction: .south),
+        departure(destination: "Millbrae", minutes: 26, direction: .south),
+        departure(destination: "SFO", minutes: 34, direction: .south),
+        departure(destination: "Millbrae", minutes: 48, direction: .south),
+        departure(destination: "SFO", minutes: 57, direction: .south),
+        departure(destination: "Millbrae", minutes: 66, direction: .south),
+        departure(destination: "SFO", minutes: 74, direction: .south),
+        departure(destination: "Millbrae", minutes: 89, direction: .south)
     ]
 )
 
