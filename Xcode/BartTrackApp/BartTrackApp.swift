@@ -58,6 +58,8 @@ private struct BartTrackSettingsView: View {
                 Toggle("Show only later trains", isOn: $settings.showsOnlyCatchableDepartures)
 
                 Toggle("Show Dock icon", isOn: $settings.showsDockIcon)
+
+                TextField("Open URL", text: $settings.openURLString)
             }
             .formStyle(.grouped)
 

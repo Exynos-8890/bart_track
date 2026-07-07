@@ -1,3 +1,4 @@
+import BartTrackCore
 import BartTrackWidgetUI
 import SwiftUI
 import WidgetKit
@@ -41,5 +42,6 @@ private struct BartTrackWidgetEntryView: View {
                     .padding(10)
             }
         }
+        .widgetURL(entry.settings.openURL)
     }
 }

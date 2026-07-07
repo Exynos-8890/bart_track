@@ -1,28 +1,34 @@
 import Foundation
 
 public struct BartTrackSettings: Codable, Equatable, Sendable {
+    public static let defaultOpenURLString = "https://www.bart.gov/schedules/eta/DALY"
+
     public static let `default` = BartTrackSettings(
         station: .dalyCity,
         walkingMinutes: 8,
         showsOnlyCatchableDepartures: true,
-        showsDockIcon: false
+        showsDockIcon: false,
+        openURLString: defaultOpenURLString
     )
 
     public var station: BartStation
     public var walkingMinutes: Int
     public var showsOnlyCatchableDepartures: Bool
     public var showsDockIcon: Bool
+    public var openURLString: String
 
     public init(
         station: BartStation,
         walkingMinutes: Int,
         showsOnlyCatchableDepartures: Bool,
-        showsDockIcon: Bool = false
+        showsDockIcon: Bool = false,
+        openURLString: String = Self.defaultOpenURLString
     ) {
         self.station = station
         self.walkingMinutes = Self.clampedWalkingMinutes(walkingMinutes)
         self.showsOnlyCatchableDepartures = showsOnlyCatchableDepartures
         self.showsDockIcon = showsDockIcon
+        self.openURLString = openURLString
     }
 
     public init(from decoder: Decoder) throws {
@@ -39,6 +45,14 @@ public struct BartTrackSettings: Codable, Equatable, Sendable {
             Bool.self,
             forKey: .showsDockIcon
         ) ?? Self.default.showsDockIcon
+        self.openURLString = try container.decodeIfPresent(
+            String.self,
+            forKey: .openURLString
+        ) ?? Self.default.openURLString
+    }
+
+    public var openURL: URL? {
+        URL(string: openURLString.trimmingCharacters(in: .whitespacesAndNewlines))
     }
 
     public static func clampedWalkingMinutes(_ value: Int) -> Int {

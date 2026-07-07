@@ -7,6 +7,22 @@ final class BartTrackSettingsTests: XCTestCase {
         XCTAssertEqual(BartTrackSettings.default.walkingMinutes, 8)
         XCTAssertTrue(BartTrackSettings.default.showsOnlyCatchableDepartures)
         XCTAssertFalse(BartTrackSettings.default.showsDockIcon)
+        XCTAssertEqual(BartTrackSettings.default.openURL?.host, "www.bart.gov")
+        XCTAssertEqual(BartTrackSettings.default.openURL?.path, "/schedules/eta/DALY")
+    }
+
+    func testOldSettingsFilesUseDefaultOpenURL() throws {
+        let data = """
+        {
+          "showsOnlyCatchableDepartures" : true,
+          "station" : "DALY",
+          "walkingMinutes" : 8
+        }
+        """.data(using: .utf8)!
+
+        let settings = try JSONDecoder().decode(BartTrackSettings.self, from: data)
+
+        XCTAssertEqual(settings.openURLString, BartTrackSettings.defaultOpenURLString)
     }
 
     func testSettingsClampWalkingMinutesToSupportedRange() {
