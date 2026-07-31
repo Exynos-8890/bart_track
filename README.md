@@ -1,23 +1,25 @@
 # Bart Track
 
-Bart Track 是一个 macOS 桌面小组件，用来查看 BART 车站的实时到站倒计时。它最初按 Daly City 通勤场景设计：你从家走到车站需要一段时间，小组件只显示你理论上赶得上的车。
+[English](README.md) | [简体中文](README.zh-CN.md)
 
-当前版本支持：
+Bart Track is a macOS desktop widget for viewing real-time BART departure countdowns. It was originally designed around a Daly City commute: when walking to the station takes several minutes, the widget can show only the trains you can realistically catch.
 
-- 选择任意 BART 出发站，默认 `Daly City`。
-- 设置步行到车站的时间，默认 `8` 分钟，范围 `0...60`。
-- 选择是否只显示可赶上的车，默认开启。
-- 主 App 默认隐藏 Dock 图标；可以在设置里重新打开。
-- 点击小组件里的 `LIVE BART` 按钮会通过 `barttrack://open-live-bart` 打开 BART 官方 Daly City 实时出发页面。
-- 在 small / medium / large / extra large Widget 尺寸下显示不同密度的信息。
-- 显示数据更新时间；如果 WidgetKit 没有及时刷新，会显示 `OLD` / `STALE`。
-- 写入 debug log，方便排查为什么信息变旧。
+The current version supports:
 
-## 显示逻辑
+- Selecting any BART origin station; the default is `Daly City`.
+- Setting the walking time to the station; the default is `8` minutes, with a range of `0...60`.
+- Choosing whether to show only catchable trains; enabled by default.
+- Hiding the main app's Dock icon by default, with an option to show it again.
+- Opening BART's official Daly City real-time departures page through `barttrack://open-live-bart` when you click `LIVE BART` in the widget.
+- Different information densities for small, medium, large, and extra-large widget families.
+- A last-updated time plus `OLD` / `STALE` indicators when WidgetKit does not refresh on time.
+- A debug log for diagnosing stale information.
 
-小组件里的数字表示 **车还有多少分钟到站**，不是你多久后出门。
+## Display Logic
 
-默认配置是：
+The numbers in the widget mean **how many minutes remain until a train arrives**, not how many minutes you should wait before leaving home.
+
+The default configuration is:
 
 ```json
 {
@@ -29,71 +31,71 @@ Bart Track 是一个 macOS 桌面小组件，用来查看 BART 车站的实时�
 }
 ```
 
-含义是：
+This means:
 
-- `station: "DALY"`：从 Daly City 站出发。
-- `walkingMinutes: 8`：你需要 8 分钟走到车站。
-- `showsOnlyCatchableDepartures: true`：只显示到站时间大于 8 分钟的车。
-- `showsDockIcon: false`：主 App 运行时不显示 Dock 图标。
-- `openURLString`：点击小组件里 `LIVE BART` 按钮时最终打开的网页，默认是 BART 官方 Daly City 实时出发页。
+- `station: "DALY"`: depart from Daly City station.
+- `walkingMinutes: 8`: it takes 8 minutes to walk to the station.
+- `showsOnlyCatchableDepartures: true`: show only trains arriving in more than 8 minutes.
+- `showsDockIcon: false`: hide the main app's Dock icon while it is running.
+- `openURLString`: the page opened by the widget's `LIVE BART` button; by default, BART's official Daly City real-time departures page.
 
-例如某辆车 `7m` 后到站，步行时间是 `8`，它会被隐藏，因为你大概率赶不上。某辆车 `10m` 后到站，它会显示。
+For example, a train arriving in `7m` is hidden when the walking time is `8`, because you are unlikely to catch it. A train arriving in `10m` is shown.
 
-如果你把 `walkingMinutes` 改成 `0`，基本就相当于显示所有未来到站的车，但 `Leaving` / `0m` 这种已经到站的车仍然不会被当作可赶上的车。
+Setting `walkingMinutes` to `0` effectively shows all future departures, although `Leaving` / `0m` trains are still not treated as catchable.
 
-## Widget 尺寸
+## Widget Sizes
 
-当前展示密度：
+Current display density:
 
-- Small / `1x1`：每个方向最多显示 3 班可赶上的车，左右两列分别显示 north / south。
-- Medium / `1x2`：每个方向最多显示 4 班可赶上的车。
-- Large / `2x2` 和 Extra Large：每个方向最多显示 8 班可赶上的车。
+- Small / `1x1`: up to 3 catchable trains per direction, with north and south in two columns.
+- Medium / `1x2`: up to 4 catchable trains per direction.
+- Large / `2x2` and Extra Large: up to 8 catchable trains per direction.
 
-每个车次只显示分钟数和线路颜色，不显示终点站、站台、catchable count 等占空间的信息。
+Each departure shows only its minutes and route color. Destinations, platforms, catchable counts, and other space-consuming details are omitted.
 
-## 推荐使用方式：App 里修改设置
+## Recommended Setup: Use the App
 
-安装后打开：
+After installation, open:
 
 ```bash
 open ~/Applications/BartTrack.app
 ```
 
-App 窗口里可以修改：
+The app window lets you configure:
 
-- `Station`：出发站。
-- `Walking time`：从你当前位置走到车站需要几分钟。
-- `Show only later trains`：是否只显示大于步行时间的车。
-- `Show Dock icon`：是否让主 App 出现在 Dock 栏。
-- `Open URL`：点击桌面小组件里 `LIVE BART` 按钮时打开的网页。
+- `Station`: origin station.
+- `Walking time`: minutes required to walk from your current location to the station.
+- `Show only later trains`: whether to show only trains arriving after the walking-time threshold.
+- `Show Dock icon`: whether the main app appears in the Dock.
+- `Open URL`: the page opened by the desktop widget's `LIVE BART` button.
 
-修改后 App 会自动保存配置，并调用 `WidgetCenter.shared.reloadAllTimelines()` 请求系统刷新小组件。
+Changes are saved automatically, and the app calls `WidgetCenter.shared.reloadAllTimelines()` to request a widget refresh.
 
-注意：macOS WidgetKit 不保证一定按我们的请求立即刷新。它可能根据系统状态延迟刷新，所以偶尔看到 `OLD` 不一定代表 BART API 出错。
+Note that macOS WidgetKit does not guarantee an immediate refresh. It may delay updates according to system conditions, so an occasional `OLD` indicator does not necessarily mean the BART API failed.
 
-你可以 quit 掉 Bart Track 主 App。小组件的自动刷新由 macOS WidgetKit 启动 Widget extension 完成，不依赖主 App 常驻。主 App 只负责设置界面、写配置、手动请求刷新和显示 debug log。
+You can quit the Bart Track app. Automatic widget refreshes are performed by the Widget extension under macOS WidgetKit and do not require the main app to remain running. The main app only provides settings, writes configuration, requests manual refreshes, and displays the debug log.
 
-## 手动修改配置文件
+## Edit the Configuration File Manually
 
-配置文件路径是：
+The configuration file is located at:
 
 ```text
 ~/Library/Containers/com.local.BartTrack.WidgetExtension/Data/Library/Application Support/BartTrack/settings.json
 ```
 
-可以用命令打开目录：
+Open its directory with:
 
 ```bash
 open "$HOME/Library/Containers/com.local.BartTrack.WidgetExtension/Data/Library/Application Support/BartTrack"
 ```
 
-也可以直接用编辑器打开：
+Or open the file directly in a text editor:
 
 ```bash
 open -e "$HOME/Library/Containers/com.local.BartTrack.WidgetExtension/Data/Library/Application Support/BartTrack/settings.json"
 ```
 
-配置文件示例：
+Example configuration:
 
 ```json
 {
@@ -105,25 +107,25 @@ open -e "$HOME/Library/Containers/com.local.BartTrack.WidgetExtension/Data/Libra
 }
 ```
 
-字段说明：
+Field reference:
 
-| 字段 | 类型 | 说明 |
+| Field | Type | Description |
 | --- | --- | --- |
-| `station` | string | BART 车站缩写，例如 Daly City 是 `DALY`。 |
-| `walkingMinutes` | number | 走到车站需要几分钟；会被限制在 `0...60`。 |
-| `showsOnlyCatchableDepartures` | boolean | `true` 只显示到站时间大于步行时间的车；`false` 显示原始时间顺序里的车。 |
-| `showsDockIcon` | boolean | `false` 隐藏主 App 的 Dock 图标；`true` 显示 Dock 图标。 |
-| `openURLString` | string | 点击小组件里 `LIVE BART` 按钮时最终打开的 URL，例如 `https://www.bart.gov/schedules/eta/DALY`。 |
+| `station` | string | BART station abbreviation, such as `DALY` for Daly City. |
+| `walkingMinutes` | number | Minutes required to reach the station; clamped to `0...60`. |
+| `showsOnlyCatchableDepartures` | boolean | `true` shows only trains arriving after the walking-time threshold; `false` keeps trains in the original chronological order. |
+| `showsDockIcon` | boolean | `false` hides the main app's Dock icon; `true` shows it. |
+| `openURLString` | string | URL opened by `LIVE BART`, such as `https://www.bart.gov/schedules/eta/DALY`. |
 
-手动改完配置后，建议打开 Bart Track App 点一次 `Reload Widget`，或者重新打开 App：
+After editing the file manually, open Bart Track and click `Reload Widget`, or reopen the app:
 
 ```bash
 open ~/Applications/BartTrack.app
 ```
 
-## 常用配置例子
+## Common Configuration Examples
 
-只看 Daly City，步行 8 分钟，只显示能赶上的车：
+Daly City, 8-minute walk, catchable trains only:
 
 ```json
 {
@@ -135,7 +137,7 @@ open ~/Applications/BartTrack.app
 }
 ```
 
-从 24th St. Mission 出发，步行 5 分钟：
+24th St. Mission, 5-minute walk:
 
 ```json
 {
@@ -147,7 +149,7 @@ open ~/Applications/BartTrack.app
 }
 ```
 
-从 Embarcadero 出发，显示所有未来车次：
+Embarcadero, all future departures:
 
 ```json
 {
@@ -159,11 +161,11 @@ open ~/Applications/BartTrack.app
 }
 ```
 
-## BART 站点缩写表
+## BART Station Abbreviations
 
-`station` 必须使用 BART 官方站点缩写。
+The `station` value must use an official BART station abbreviation.
 
-| 缩写 | 站点 |
+| Abbreviation | Station |
 | --- | --- |
 | `12TH` | 12th St. Oakland City Center |
 | `16TH` | 16th St. Mission |
@@ -216,9 +218,9 @@ open ~/Applications/BartTrack.app
 | `WDUB` | West Dublin/Pleasanton |
 | `WOAK` | West Oakland |
 
-## 安装
+## Installation
 
-### 1. 构建并测试
+### 1. Build and Test
 
 ```bash
 swift test
@@ -235,22 +237,22 @@ xcodebuild \
   build
 ```
 
-### 2. 卸载旧版本
+### 2. Uninstall the Previous Version
 
-仓库里有复用脚本：
+The repository includes a reusable script:
 
 ```bash
 bash scripts/uninstall-barttrack.sh
 ```
 
-这个脚本会：
+The script:
 
-- 停掉 `BartTrack.app` 和 Widget extension 进程。
-- 从 `pluginkit` 里注销旧 extension。
-- 删除 `~/Applications/BartTrack.app`。
-- 验证旧进程和旧注册是否还存在。
+- Stops the `BartTrack.app` and Widget extension processes.
+- Unregisters the old extension from `pluginkit`.
+- Removes `~/Applications/BartTrack.app`.
+- Checks for remaining processes and registrations.
 
-### 3. 安装新版本
+### 3. Install the New Version
 
 ```bash
 mkdir -p "$HOME/Applications"
@@ -262,169 +264,169 @@ ditto \
   "$HOME/Applications/BartTrack.app"
 ```
 
-### 4. 注册 Widget extension
+### 4. Register the Widget Extension
 
 ```bash
 pluginkit -a "$HOME/Applications/BartTrack.app/Contents/PlugIns/BartTrackWidgetExtension.appex"
 ```
 
-验证注册状态：
+Verify the registration:
 
 ```bash
 pluginkit -m -A -D -v -i com.local.BartTrack.WidgetExtension
 ```
 
-正常情况下会看到类似：
+A successful registration looks similar to:
 
 ```text
 com.local.BartTrack.WidgetExtension(1.0) ... ~/Applications/BartTrack.app/Contents/PlugIns/BartTrackWidgetExtension.appex
 ```
 
-### 5. 打开 App
+### 5. Open the App
 
 ```bash
 open "$HOME/Applications/BartTrack.app"
 ```
 
-打开后 App 会写入默认配置，并请求 Widget 刷新。
+When opened, the app writes the default configuration and requests a widget refresh.
 
-## 添加到桌面小组件
+## Add the Desktop Widget
 
-安装并打开 App 后：
+After installing and opening the app:
 
-1. 在 macOS 桌面空白处右键。
-2. 选择 `Edit Widgets...` / `编辑小组件...`。
-3. 搜索 `Daly City BART` 或 `Bart Track`。
-4. 选择尺寸，例如 small / medium / large。
-5. 拖到桌面或通知中心。
+1. Right-click an empty area of the macOS desktop.
+2. Select `Edit Widgets...`.
+3. Search for `Daly City BART` or `Bart Track`.
+4. Select a size such as small, medium, or large.
+5. Drag it to the desktop or Notification Center.
 
-说明：当前 Widget 在系统选择器里的名字仍然是 `Daly City BART`，即使你把出发站改成别的站。实际数据会按配置文件里的 `station` 读取。
+The widget is currently still named `Daly City BART` in the system widget picker, even if you change the origin station. Its data follows the `station` value in your configuration.
 
-## 卸载
+## Uninstallation
 
 ```bash
 bash scripts/uninstall-barttrack.sh
 ```
 
-这个脚本不会删除配置文件和 debug log。如果你想清理配置，可以删除：
+The script does not remove the configuration file or debug log. To remove those as well:
 
 ```bash
 rm -rf "$HOME/Library/Containers/com.local.BartTrack.WidgetExtension/Data/Library/Application Support/BartTrack"
 ```
 
-注意：这个命令会删掉 `settings.json` 和 `debug.log`。
+Warning: this command deletes both `settings.json` and `debug.log`.
 
-## 数据来源
+## Data Source
 
-当前使用 BART Legacy ETD JSON endpoint：
+The current implementation uses BART's Legacy ETD JSON endpoint:
 
 ```text
 https://api.bart.gov/api/etd.aspx?cmd=etd&orig=DALY&key=MW9S-E7SL-26DU-VV8V&json=y
 ```
 
-实际请求时 `orig` 会替换成你的 `station` 配置，例如：
+At runtime, `orig` is replaced by the configured `station`, for example:
 
 ```text
 https://api.bart.gov/api/etd.aspx?cmd=etd&orig=EMBR&key=...&json=y
 ```
 
-代码里把请求、解码和展示分开：
+Requests, decoding, and presentation are separated in the codebase:
 
-- `Sources/BartTrackCore`：BART 请求、ETD 解码、配置、debug log。
-- `Sources/BartTrackWidgetUI`：小组件 UI 和布局规则。
-- `Sources/BartTrackWidgetKit`：WidgetKit timeline provider 和刷新策略。
-- `Xcode/BartTrackApp`：主 App 设置界面。
+- `Sources/BartTrackCore`: BART requests, ETD decoding, configuration, and debug logging.
+- `Sources/BartTrackWidgetUI`: widget UI and layout rules.
+- `Sources/BartTrackWidgetKit`: WidgetKit timeline provider and refresh policy.
+- `Xcode/BartTrackApp`: main app settings UI.
 
-以后如果要换成 GTFS / GTFS-RT，可以优先替换 Core 里的数据源，不需要重写 Widget UI。
+A future GTFS / GTFS-RT migration can primarily replace the data source in Core without rewriting the widget UI.
 
-## 为什么会显示 OLD / STALE
+## Why Does the Widget Show OLD / STALE?
 
-Widget 顶部会显示最后一次数据生成时间。如果数据过期，会显示：
+The widget header displays the time of the most recently generated data. When the data expires, it shows:
 
-- small 尺寸：`OLD`
-- medium / large 尺寸：`STALE HH:mm`
+- Small: `OLD`
+- Medium / Large: `STALE HH:mm`
 
-当前 timeline 策略：
+Current timeline policy:
 
-- 请求系统大约 30 秒后刷新一次。
-- 同时放入一个 90 秒后的 stale entry。
-- 如果 macOS WidgetKit 在 90 秒内没有再次调用 provider，就会显示 `OLD` / `STALE`。
+- Request another system refresh after approximately 30 seconds.
+- Include a stale entry scheduled 90 seconds later.
+- Show `OLD` / `STALE` if macOS WidgetKit does not call the provider again within 90 seconds.
 
-这不一定是 BART API 错。macOS 可以根据系统策略延迟 Widget 刷新。
+This does not necessarily indicate a BART API error. macOS may delay widget refreshes according to system policy.
 
 ## Debug Log
 
-debug log 路径：
+The debug log is located at:
 
 ```text
 ~/Library/Containers/com.local.BartTrack.WidgetExtension/Data/Library/Application Support/BartTrack/debug.log
 ```
 
-查看最近日志：
+View recent entries with:
 
 ```bash
 tail -n 80 "$HOME/Library/Containers/com.local.BartTrack.WidgetExtension/Data/Library/Application Support/BartTrack/debug.log"
 ```
 
-日志前缀是：
+Log prefix:
 
 ```text
 [BARTTRACK-DEBUG]
 ```
 
-常见事件：
+Common events:
 
-| 事件 | 含义 |
+| Event | Meaning |
 | --- | --- |
-| `timeline.start` | WidgetKit 调用了 provider，开始生成新 timeline。 |
-| `service.request.start` | 开始请求 BART API。 |
-| `service.request.success` | BART API 请求成功，并解码出 north/south 车次。 |
-| `service.request.failure` | BART API 请求或解码失败。 |
-| `timeline.loaded` | 成功生成 fresh entry。 |
-| `timeline.complete` | provider 把 timeline 返回给 WidgetKit。 |
-| `app.openURL` | 主 App 收到了 `barttrack://...` 深链接。 |
-| `app.openLiveBart` | 主 App 正在把 `LIVE BART` 深链接转发到配置里的网页。 |
+| `timeline.start` | WidgetKit called the provider and began generating a timeline. |
+| `service.request.start` | A BART API request started. |
+| `service.request.success` | The request succeeded and north/south departures were decoded. |
+| `service.request.failure` | The request or decoding failed. |
+| `timeline.loaded` | A fresh entry was generated successfully. |
+| `timeline.complete` | The provider returned its timeline to WidgetKit. |
+| `app.openURL` | The main app received a `barttrack://...` deep link. |
+| `app.openLiveBart` | The app is forwarding the `LIVE BART` deep link to the configured web page. |
 
-排查 OLD 的方法：
+To diagnose `OLD`:
 
-1. 看到 OLD 后打开 App，看 Debug Log 区域。
-2. 如果出现 `service.request.failure`，说明 BART 请求失败或网络有问题。
-3. 如果没有 failure，但 `timeline.start` 中间断了超过 90 秒，说明 macOS WidgetKit 没有及时调用 provider。
-4. 如果 `timeline.start` 很频繁但 UI 仍然 OLD，说明可能是系统缓存或 Widget 视图没有更新，需要重新添加 Widget 或重启 Widget 相关进程。
+1. Open the app after seeing `OLD` and inspect the Debug Log section.
+2. If `service.request.failure` appears, the BART request or network failed.
+3. If there is no failure but more than 90 seconds pass between `timeline.start` events, macOS WidgetKit did not call the provider on time.
+4. If `timeline.start` appears frequently while the UI remains `OLD`, the system cache or widget view may not be updating; remove and re-add the widget or restart the relevant widget processes.
 
-## 开发命令
+## Development Commands
 
-运行测试：
+Run tests:
 
 ```bash
 swift test
 ```
 
-生成 Widget 预览图：
+Generate a widget preview image:
 
 ```bash
 swift run BartTrackSnapshot widget-preview.png
 ```
 
-打开 Xcode 工程：
+Open the Xcode project:
 
 ```bash
 open BartTrack.xcodeproj
 ```
 
-查看 Git 历史：
+Inspect Git history:
 
 ```bash
 git log --oneline
 ```
 
-回滚最近一次提交：
+Revert the latest commit:
 
 ```bash
 git revert HEAD
 ```
 
-回滚指定提交：
+Revert a specific commit:
 
 ```bash
 git revert <commit-sha>
